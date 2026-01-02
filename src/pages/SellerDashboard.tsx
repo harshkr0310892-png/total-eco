@@ -144,6 +144,9 @@ export default function SellerDashboard() {
     gst_percentage: "",
   });
 
+  // State for sales year selection
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+
   // Fetch messages for selected order and subscribe to realtime inserts
   useEffect(() => {
     if (!selectedOrder) return;
@@ -1428,21 +1431,64 @@ export default function SellerDashboard() {
           </TabsContent>
 
           <TabsContent value="sales" className="space-y-6">
-            <h2 className="font-display text-2xl font-bold">Sales Analytics</h2>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <h2 className="font-display text-2xl font-bold">Sales Analytics</h2>
+              <div className="flex items-center gap-3">
+                <label className="text-sm text-muted-foreground">View Year:</label>
+                <select
+                  value={selectedYear}
+                  onChange={(e) => {
+                    const selected = Number(e.target.value);
+                    const currentYear = new Date().getFullYear();
+                    if (selected <= currentYear) {
+                      setSelectedYear(selected);
+                    } else {
+                      toast.error(`Cannot select year ${selected}. Future years are not allowed.`);
+                    }
+                  }}
+                  className="px-3 py-1 border rounded-md bg-card text-sm"
+                >
+                  {(() => {
+                    // Get all years with sales data and include current year
+                    const currentYear = new Date().getFullYear();
+                    const availableYears = new Set<number>([currentYear]);
+                    
+                    if (orders && orders.length > 0) {
+                      orders.forEach(order => {
+                        if (order.status !== 'cancelled') {
+                          const orderYear = new Date(order.created_at).getFullYear();
+                          availableYears.add(orderYear);
+                        }
+                      });
+                    }
+                    
+                    // Convert to sorted array in descending order
+                    const sortedYears = Array.from(availableYears).sort((a, b) => b - a);
+                    
+                    return sortedYears.map(year => (
+                      <option key={year} value={year}>
+                        {year}
+                        {year === currentYear && " (Current)"}
+                      </option>
+                    ));
+                  })()}
+                </select>
+              </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-card rounded-xl border border-border/50 p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-lg gradient-gold flex items-center justify-center">
                     <Calendar className="w-5 h-5 text-primary-foreground" />
                   </div>
-                  <span className="text-sm text-muted-foreground">This Month</span>
+                  <span className="text-sm text-muted-foreground">This Month ({selectedYear})</span>
                 </div>
                 <p className="text-3xl font-bold">
                   ₹{orders?.filter(o => {
                     const orderDate = new Date(o.created_at);
                     const now = new Date();
                     return orderDate.getMonth() === now.getMonth() && 
-                           orderDate.getFullYear() === now.getFullYear() &&
+                           orderDate.getFullYear() === selectedYear &&
                            o.status !== 'cancelled';
                   }).reduce((sum, o) => sum + Number(o.total), 0).toLocaleString() || 0}
                 </p>
@@ -1451,7 +1497,7 @@ export default function SellerDashboard() {
                     const orderDate = new Date(o.created_at);
                     const now = new Date();
                     return orderDate.getMonth() === now.getMonth() && 
-                           orderDate.getFullYear() === now.getFullYear() &&
+                           orderDate.getFullYear() === selectedYear &&
                            o.status !== 'cancelled';
                   }).length || 0} orders
                 </p>
@@ -1462,21 +1508,19 @@ export default function SellerDashboard() {
                   <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
                     <TrendingUp className="w-5 h-5 text-green-500" />
                   </div>
-                  <span className="text-sm text-muted-foreground">This Year</span>
+                  <span className="text-sm text-muted-foreground">Year {selectedYear}</span>
                 </div>
                 <p className="text-3xl font-bold">
                   ₹{orders?.filter(o => {
                     const orderDate = new Date(o.created_at);
-                    const now = new Date();
-                    return orderDate.getFullYear() === now.getFullYear() &&
+                    return orderDate.getFullYear() === selectedYear &&
                            o.status !== 'cancelled';
                   }).reduce((sum, o) => sum + Number(o.total), 0).toLocaleString() || 0}
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
                   {orders?.filter(o => {
                     const orderDate = new Date(o.created_at);
-                    const now = new Date();
-                    return orderDate.getFullYear() === now.getFullYear() &&
+                    return orderDate.getFullYear() === selectedYear &&
                            o.status !== 'cancelled';
                   }).length || 0} orders
                 </p>
@@ -1517,23 +1561,23 @@ export default function SellerDashboard() {
             </div>
 
             <div className="bg-card rounded-xl border border-border/50 p-6">
-              <h3 className="font-display text-lg font-bold mb-4">Monthly Sales ({new Date().getFullYear()})</h3>
+              <h3 className="font-display text-lg font-bold mb-4">Monthly Sales ({selectedYear})</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {Array.from({ length: 12 }, (_, i) => {
-                  const monthName = new Date(new Date().getFullYear(), i).toLocaleString('default', { month: 'short' });
+                  const monthName = new Date(selectedYear, i).toLocaleString('default', { month: 'short' });
                   const monthSales = orders?.filter(o => {
                     const orderDate = new Date(o.created_at);
                     return orderDate.getMonth() === i && 
-                           orderDate.getFullYear() === new Date().getFullYear() &&
+                           orderDate.getFullYear() === selectedYear &&
                            o.status !== 'cancelled';
                   }).reduce((sum, o) => sum + Number(o.total), 0) || 0;
                   const monthOrders = orders?.filter(o => {
                     const orderDate = new Date(o.created_at);
                     return orderDate.getMonth() === i && 
-                           orderDate.getFullYear() === new Date().getFullYear() &&
+                           orderDate.getFullYear() === selectedYear &&
                            o.status !== 'cancelled';
                   }).length || 0;
-                  const isCurrentMonth = i === new Date().getMonth();
+                  const isCurrentMonth = i === new Date().getMonth() && selectedYear === new Date().getFullYear();
                   
                   return (
                     <div 
@@ -1587,6 +1631,7 @@ export default function SellerDashboard() {
                     const data = yearlyData[Number(year)];
                     const percentage = (data.total / maxTotal) * 100;
                     const isBestYear = data.total === maxTotal && years.length > 1;
+                    const isSelectedYear = Number(year) === selectedYear;
                     
                     return (
                       <div key={year} className="space-y-2">
@@ -1596,6 +1641,11 @@ export default function SellerDashboard() {
                             {isBestYear && (
                               <span className="px-2 py-0.5 text-xs rounded-full gradient-gold text-primary-foreground">
                                 Best Year
+                              </span>
+                            )}
+                            {isSelectedYear && !isBestYear && (
+                              <span className="px-2 py-0.5 text-xs rounded-full bg-primary text-primary-foreground">
+                                Selected
                               </span>
                             )}
                           </div>
@@ -1608,7 +1658,7 @@ export default function SellerDashboard() {
                           <div 
                             className={cn(
                               "h-full rounded-full transition-all duration-500",
-                              isBestYear ? "gradient-gold" : "bg-primary/60"
+                              isBestYear ? "gradient-gold" : isSelectedYear ? "bg-primary" : "bg-primary/60"
                             )}
                             style={{ width: `${percentage}%` }}
                           />

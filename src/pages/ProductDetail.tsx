@@ -1054,52 +1054,57 @@ export default function ProductDetail() {
               {seller_name && (
                 <div
                   className={cn(
-                    "mt-6 md:mt-8 group relative overflow-hidden rounded-2xl border transition-all duration-500",
-                    "bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900",
+                    "mt-6 md:mt-8 group relative overflow-hidden rounded-3xl transition-all duration-500",
+                    "bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-gray-700",
                     sellerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2",
-                    "hover:shadow-2xl hover:-translate-y-1 border-blue-200 dark:border-slate-700"
+                    "hover:shadow-2xl hover:-translate-y-1"
                   )}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 dark:from-blue-700/10 dark:to-indigo-700/10"></div>
-                  <div className="relative p-6 md:p-8">
-                    <div className="flex items-center justify-between mb-6 pb-4 border-b border-blue-100/50 dark:border-slate-700">
-                      <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
-                          <BadgeCheck className="w-7 h-7 md:w-8 md:h-8 text-white" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-gray-100/50 to-gray-200/30 dark:from-gray-700/20 dark:to-gray-800/20"></div>
+                  <div className="relative p-8">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-gray-200 dark:border-gray-700 mb-6">
+                      <div className="flex items-center gap-5">
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-lg">
+                          <BadgeCheck className="w-8 h-8 text-white" />
                         </div>
                         <div>
-                          <h4 className="font-display text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Seller</h4>
-                          <p className="text-lg md:text-xl mt-1">
-                            <span className="text-blue-600 dark:text-blue-400 font-medium">Verified • </span>
-                            <span className="text-gray-900 dark:text-white font-semibold">{seller_name}</span>
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-display text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">Seller</h4>
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200">
+                              Verified
+                            </span>
+                          </div>
+                          <p className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white">
+                            {seller_name}
                           </p>
                         </div>
                       </div>
                       {brand && (
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-4">
                           {brand_logo_url ? (
                             <img
                               src={brand_logo_url}
                               alt={brand}
-                              className="w-12 h-12 md:w-14 md:h-14 rounded-xl object-cover border-2 border-white shadow-md"
+                              className="w-16 h-16 rounded-2xl object-cover border-2 border-white shadow-lg"
                             />
                           ) : (
-                            <div className="px-4 py-2 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 font-medium text-sm md:text-base">
+                            <div className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold text-base">
                               {brand}
                             </div>
                           )}
                         </div>
                       )}
                     </div>
+                    
                     {seller_description && (
-                      <div className="mb-6">
-                        <p className="text-gray-700 dark:text-gray-300 text-base md:text-lg leading-relaxed">
+                      <div className="mb-8">
+                        <p className="text-gray-700 dark:text-gray-300 text-base md:text-lg leading-relaxed mb-4">
                           {sellerShortDesc}
                         </p>
                         {seller_description.length > 180 && (
                           <button
                             onClick={() => setSellerExpanded((v) => !v)}
-                            className="mt-3 text-blue-600 dark:text-blue-400 font-medium hover:underline flex items-center gap-1"
+                            className="text-blue-600 dark:text-blue-400 font-medium hover:underline flex items-center gap-1 transition-colors duration-200"
                           >
                             {sellerExpanded ? "Show less" : "Read more"}
                             {sellerExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -1107,24 +1112,30 @@ export default function ProductDetail() {
                         )}
                       </div>
                     )}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-blue-100/50 dark:border-slate-700">
-                      <div className="flex items-center gap-3 p-4 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-blue-100/50 dark:border-slate-700 shadow-sm">
-                        <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                          <ShieldCheck className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+                      <div className="flex flex-col items-center text-center p-5 rounded-2xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-sm transition-transform duration-300 hover:scale-[1.02]">
+                        <div className="w-14 h-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-3">
+                          <ShieldCheck className="w-6 h-6 text-green-600 dark:text-green-400" />
                         </div>
-                        <span className="text-gray-700 dark:text-gray-300 font-medium">Quality Assured</span>
+                        <h5 className="font-semibold text-gray-900 dark:text-white mb-2">Quality Assured</h5>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Premium quality products guaranteed</p>
                       </div>
-                      <div className="flex items-center gap-3 p-4 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-blue-100/50 dark:border-slate-700 shadow-sm">
-                        <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                          <ShoppingBag className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      
+                      <div className="flex flex-col items-center text-center p-5 rounded-2xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-sm transition-transform duration-300 hover:scale-[1.02]">
+                        <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-3">
+                          <ShoppingBag className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                         </div>
-                        <span className="text-gray-700 dark:text-gray-300 font-medium">Secure Checkout</span>
+                        <h5 className="font-semibold text-gray-900 dark:text-white mb-2">Secure Checkout</h5>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Safe and encrypted payment process</p>
                       </div>
-                      <div className="flex items-center gap-3 p-4 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-blue-100/50 dark:border-slate-700 shadow-sm">
-                        <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                          <RotateCcw className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                      
+                      <div className="flex flex-col items-center text-center p-5 rounded-2xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-sm transition-transform duration-300 hover:scale-[1.02]">
+                        <div className="w-14 h-14 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-3">
+                          <RotateCcw className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                         </div>
-                        <span className="text-gray-700 dark:text-gray-300 font-medium">7-Day Return</span>
+                        <h5 className="font-semibold text-gray-900 dark:text-white mb-2">7-Day Return</h5>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Easy returns within 7 days</p>
                       </div>
                     </div>
                   </div>
