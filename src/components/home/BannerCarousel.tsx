@@ -150,18 +150,7 @@ export function BannerCarousel({ categories }: BannerCarouselProps) {
                       }
                     </div>
                   </div>
-                  {/* Click toggle button for showing seller menu on click (desktop) */}
-                  <div className="absolute right-0 top-0 mt-1 mr-1">
-                    <button
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpenMenuFor(openMenuFor === cat.id ? null : cat.id); }}
-                      className="hidden md:inline-flex items-center justify-center w-6 h-6 rounded-full bg-background/80 hover:bg-background text-sm"
-                      aria-expanded={openMenuFor === cat.id}
-                      aria-controls={`seller-menu-${cat.id}`}
-                      title="Show seller categories"
-                    >
-                      ▾
-                    </button>
-                  </div>
+
                 </div>
               ))}
             </div>
@@ -202,23 +191,7 @@ export function BannerCarousel({ categories }: BannerCarouselProps) {
         </div>
       )}
 
-      {/* Navigation Arrows */}
-      {banners.length > 1 && (
-        <>
-          <button
-            onClick={(e) => { e.preventDefault(); prevSlide(); }}
-            className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button
-            onClick={(e) => { e.preventDefault(); nextSlide(); }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </>
-      )}
+
 
       {/* Dots Indicator */}
       {banners.length > 1 && (

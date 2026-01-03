@@ -76,28 +76,40 @@ export default function Index() {
 
 
   return (
+    <div className="warm-bg min-h-screen">
     <Layout>
       <SpecialOfferPopup />
       
       {/* Category strip (top) */}
       {topCategories.length > 0 && (
-        <section className="container mx-auto px-4 py-3">
-          <div className="bg-card rounded-lg p-3">
-            <div className="flex items-center gap-6 overflow-x-auto hide-scrollbar">
+        <section className="container mx-auto px-4 py-6">
+          <div className="bg-card rounded-xl p-6 shadow-sm border border-border/50">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-foreground font-display">
+                <span className="gradient-gold-text">Shop with category</span>
+              </h2>
+              <Link to="/products" className="text-sm text-primary hover:underline hidden md:block">
+                View All →
+              </Link>
+            </div>
+            <Link to="/products" className="text-sm text-primary hover:underline md:hidden text-center mb-4 block">
+              View All →
+            </Link>
+            <div className="flex items-center justify-center gap-6 overflow-x-auto hide-scrollbar pb-2">
               {topCategories.map((cat: any) => (
                 <Link
                   key={cat.id}
                   to={`/products?category=${encodeURIComponent(cat.id)}`}
-                  className="flex flex-col items-center text-center min-w-[96px]"
+                  className="flex flex-col items-center text-center min-w-[96px] transition-transform hover:scale-105"
                 >
-                  <div className="w-16 h-16 rounded-lg bg-white overflow-hidden shadow-sm flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-lg bg-white overflow-hidden shadow-sm flex items-center justify-center border border-border">
                     {cat.image_url ? (
                       <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover" />
                     ) : (
                       <div className="text-sm text-muted-foreground">{cat.name?.charAt(0)}</div>
                     )}
                   </div>
-                  <span className="text-xs mt-2 text-muted-foreground">{cat.name}</span>
+                  <span className="text-xs mt-2 text-muted-foreground font-medium">{cat.name}</span>
                 </Link>
               ))}
             </div>
@@ -285,5 +297,6 @@ export default function Index() {
         </section>
       )}
     </Layout>
+    </div>
   );
 }

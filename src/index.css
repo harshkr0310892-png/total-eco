@@ -15,9 +15,9 @@
 @layer base {
   :root {
     /* ===== 🌟 REFINED BACKGROUND SYSTEM ===== */
-    --background: 40 33% 99%;           /* Warm off-white */
-    --background-secondary: 40 25% 97%; /* Subtle cream */
-    --background-tertiary: 40 20% 95%;  /* Light warm gray */
+    --background: 45 25% 97%;           /* Soft warm cream */
+    --background-secondary: 45 20% 95%; /* Softer cream */
+    --background-tertiary: 45 15% 92%;  /* Light warm beige */
     --foreground: 20 25% 13%;           /* Rich warm black */
 
     /* ===== 📦 CARDS & SURFACES ===== */
@@ -27,6 +27,14 @@
 
     --popover: 0 0% 100%;
     --popover-foreground: 20 25% 13%;
+
+    /* ===== ✨ ENHANCED WHITE THEME COLORS ===== */
+    --white-accent: 45 100% 85%;         /* Soft warm amber */
+    --white-accent-light: 45 100% 95%;   /* Light warm amber */
+    --white-accent-dark: 45 100% 65%;    /* Deeper amber */
+    --white-pastel: 200 40% 90%;         /* Soft blue pastel */
+    --white-soft-pink: 330 50% 90%;      /* Soft pink pastel */
+    --white-soft-lavender: 260 40% 90%;  /* Soft lavender */
 
     /* ===== 💎 PREMIUM PRIMARY - Royal Indigo ===== */
     --primary: 243 75% 59%;             /* Rich Indigo */
@@ -104,14 +112,37 @@
       hsl(262 83% 63%)
     );
 
+    /* ===== 🌈 ENHANCED WHITE THEME GRADIENTS ===== */
+    --gradient-amber-soft: linear-gradient(135deg, 
+      hsl(var(--white-accent-light)), 
+      hsl(var(--white-accent))
+    );
+    
+    --gradient-pastel-mix: linear-gradient(135deg, 
+      hsl(var(--white-pastel)), 
+      hsl(var(--white-soft-pink)), 
+      hsl(var(--white-soft-lavender))
+    );
+    
+    --gradient-warm-soft: linear-gradient(135deg, 
+      hsl(40 33% 99%), 
+      hsl(45 100% 90%)
+    );
+    
+    --gradient-creamy: linear-gradient(135deg, 
+      hsl(40 33% 99%), 
+      hsl(40 25% 97%), 
+      hsl(45 100% 95%)
+    );
+
     --gradient-secondary: linear-gradient(135deg, 
       hsl(220 14% 96%), 
       hsl(220 14% 92%)
     );
 
     --gradient-accent: linear-gradient(135deg, 
-      hsl(168 76% 42%), 
-      hsl(160 84% 39%)
+      hsl(118, 100%, 15%), 
+      hsl(98, 100%, 50%)
     );
 
     --gradient-warm: linear-gradient(135deg, 
@@ -177,7 +208,7 @@
     /* Colored Shadows */
     --shadow-primary: 0 10px 40px -10px hsl(243 75% 59% / 0.35);
     --shadow-primary-lg: 0 20px 60px -15px hsl(243 75% 59% / 0.4);
-    --shadow-accent: 0 10px 40px -10px hsl(168 76% 42% / 0.35);
+    --shadow-accent: 0 10px 40px -10px hsla(168, 100%, 50%, 0.35);
     --shadow-success: 0 10px 40px -10px hsl(160 84% 39% / 0.35);
     --shadow-warning: 0 10px 40px -10px hsl(38 92% 50% / 0.35);
     --shadow-destructive: 0 10px 40px -10px hsl(0 84% 60% / 0.35);
@@ -236,7 +267,7 @@
   body {
     @apply text-foreground font-sans antialiased;
     background-color: hsl(var(--background));
-    background-image: var(--gradient-mesh);
+    background-image: var(--gradient-creamy), var(--gradient-mesh);
     background-attachment: fixed;
     min-height: 100vh;
   }
@@ -244,6 +275,21 @@
   /* Alternative clean background */
   body.clean-bg {
     background-image: var(--gradient-surface);
+  }
+  
+  /* Enhanced background with subtle pattern */
+  body.warm-bg {
+    background-color: hsl(var(--background));
+    background-image: 
+      radial-gradient(at 20% 30%, hsl(var(--white-accent-light)) 0px, transparent 50%),
+      radial-gradient(at 80% 70%, hsl(var(--white-pastel)) 0px, transparent 50%),
+      var(--gradient-creamy);
+  }
+  
+  /* Soft pastel background */
+  body.pastel-bg {
+    background-color: hsl(var(--background));
+    background-image: var(--gradient-pastel-mix);
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -1214,6 +1260,19 @@
   .bg-gradient-dark { background: var(--gradient-dark); }
   .bg-gradient-glass { background: var(--gradient-glass); }
   .bg-gradient-mesh { background: var(--gradient-mesh); }
+  
+  /* ===== 🌈 ENHANCED WHITE THEME BACKGROUNDS ===== */
+  .bg-white-accent { background-color: hsl(var(--white-accent)); }
+  .bg-white-accent-light { background-color: hsl(var(--white-accent-light)); }
+  .bg-white-accent-dark { background-color: hsl(var(--white-accent-dark)); }
+  .bg-white-pastel { background-color: hsl(var(--white-pastel)); }
+  .bg-white-soft-pink { background-color: hsl(var(--white-soft-pink)); }
+  .bg-white-soft-lavender { background-color: hsl(var(--white-soft-lavender)); }
+  
+  .bg-gradient-amber-soft { background: var(--gradient-amber-soft); }
+  .bg-gradient-pastel-mix { background: var(--gradient-pastel-mix); }
+  .bg-gradient-warm-soft { background: var(--gradient-warm-soft); }
+  .bg-gradient-creamy { background: var(--gradient-creamy); }
 
   /* Legacy */
   .gradient-gold {
@@ -1548,6 +1607,14 @@
 .text-info { color: hsl(var(--info)); }
 .text-accent { color: hsl(var(--accent)); }
 
+/* ===== 🌈 ENHANCED WHITE THEME TEXT COLORS ===== */
+.text-white-accent { color: hsl(var(--white-accent)); }
+.text-white-accent-light { color: hsl(var(--white-accent-light)); }
+.text-white-accent-dark { color: hsl(var(--white-accent-dark)); }
+.text-white-pastel { color: hsl(var(--white-pastel)); }
+.text-white-soft-pink { color: hsl(var(--white-soft-pink)); }
+.text-white-soft-lavender { color: hsl(var(--white-soft-lavender)); }
+
 .bg-primary { background-color: hsl(0, 100%, 50%); }
 .bg-primary-light { background-color: hsl(var(--primary-light)); }
 .bg-secondary { background-color: hsl(var(--secondary)); }
@@ -1558,12 +1625,22 @@
 .border-primary { border-color: hsl(var(--primary)); }
 .border-border { border-color: hsl(var(--border)); }
 .border-accent { border-color: hsl(var(--accent)); }
+  
+/* ===== 🌈 ENHANCED WHITE THEME BORDER COLORS ===== */
+.border-white-accent { border-color: hsl(var(--white-accent)); }
+.border-white-accent-light { border-color: hsl(var(--white-accent-light)); }
+.border-white-soft-pink { border-color: hsl(var(--white-soft-pink)); }
+.border-white-soft-lavender { border-color: hsl(var(--white-soft-lavender)); }
+.border-white-pastel { border-color: hsl(var(--white-pastel)); }
 
 /* Hover States */
-.hover\:bg-primary:hover { background-color: hsl(var(--primary)); }
+.hover\:bg-primary:hover { 
+  background-color: hsl(210, 100%, 50%) !important; /* Standard blue */
+  border-color: hsl(210, 100%, 50%) !important; /* Match border to blue */
+}
 .hover\:bg-muted:hover { background-color: hsl(var(--muted)); }
 .hover\:bg-destructive:hover { background-color: hsl(var(--destructive)); }
-.hover\:text-primary:hover { color: hsl(var(--primary)); }
+
 
 /* ================================
    📱 RESPONSIVE UTILITIES
@@ -1992,6 +2069,49 @@
     color: hsl(0 0% 0%);
 }
 
+
+/* Custom animations */
+@keyframes slideDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    max-height: 500px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    max-height: 500px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.slide-down {
+  animation: slideDown 0.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.slide-up {
+  animation: slideUp 0.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+/* Custom dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  .dark\:text-green-400 {
+    --tw-text-opacity: 1;
+    color: rgb(0, 0, 0);
+  }
+}
 
 /* Import action buttons */
 @import './styles/action-buttons.css';

@@ -41,6 +41,7 @@ export default function ProductDetail() {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [sellerExpanded, setSellerExpanded] = useState(false);
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [sellerVisible, setSellerVisible] = useState(false);
   const imageRef = useRef<HTMLDivElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
@@ -142,7 +143,7 @@ export default function ProductDetail() {
   const brand_logo_url = (product as any)?.brand_logo_url || null;
   const seller_name = (product as any)?.seller_name || null;
   const seller_description = (product as any)?.seller_description || null;
-  const sellerShortDesc = seller_description && seller_description.length > 180 && !sellerExpanded 
+  const sellerShortDesc = seller_description && seller_description.length > 180 && !descriptionExpanded 
     ? seller_description.slice(0, 180) + "…" 
     : seller_description;
 
@@ -1052,90 +1053,94 @@ export default function ProductDetail() {
                 </div>
               </div>
               {seller_name && (
-                <div
-                  className={cn(
-                    "mt-6 md:mt-8 group relative overflow-hidden rounded-3xl transition-all duration-500",
-                    "bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-gray-700",
-                    sellerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2",
-                    "hover:shadow-2xl hover:-translate-y-1"
-                  )}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-gray-100/50 to-gray-200/30 dark:from-gray-700/20 dark:to-gray-800/20"></div>
-                  <div className="relative p-8">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-gray-200 dark:border-gray-700 mb-6">
-                      <div className="flex items-center gap-5">
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-lg">
-                          <BadgeCheck className="w-8 h-8 text-white" />
+                <div className="mt-6 md:mt-8 rounded-xl border bg-card border-border">
+                  <button
+                    className="w-full p-4 md:p-6 text-left rounded-xl transition-all duration-300 hover:bg-[hsl(159.92deg,52.26%,28.54%,0.1)] hover:shadow-md"
+                    onClick={() => setSellerExpanded((v) => !v)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-[hsl(159.92deg,52.26%,28.54%)] flex items-center justify-center shadow-sm">
+                          <BadgeCheck className="w-5 h-5 text-primary-foreground" />
                         </div>
                         <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-display text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">Seller</h4>
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200">
-                              Verified
-                            </span>
-                          </div>
-                          <p className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white">
-                            {seller_name}
+                          <h4 className="font-display text-lg md:text-xl font-semibold text-foreground">Seller</h4>
+                          <p className="text-sm md:text-base mt-1 text-muted-foreground">
+                            <span className="text-muted-foreground font-medium">Verified • </span>
+                            <span className="text-foreground font-medium">{seller_name}</span>
                           </p>
                         </div>
                       </div>
-                      {brand && (
-                        <div className="flex items-center gap-4">
-                          {brand_logo_url ? (
-                            <img
-                              src={brand_logo_url}
-                              alt={brand}
-                              className="w-16 h-16 rounded-2xl object-cover border-2 border-white shadow-lg"
-                            />
-                          ) : (
-                            <div className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold text-base">
-                              {brand}
-                            </div>
+                      <div className="flex items-center gap-3">
+                        {brand && (
+                          <div className="flex-shrink-0 flex items-center justify-center">
+                            {brand_logo_url ? (
+                              <img
+                                src={brand_logo_url}
+                                alt={brand}
+                                className="w-10 h-10 md:w-12 md:h-12 rounded-lg object-cover border border-border"
+                              />
+                            ) : (
+                              <div className="px-3 py-1.5 rounded-md bg-muted text-muted-foreground font-medium text-xs md:text-sm">
+                                {brand}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        <div className="flex-shrink-0 ml-2">
+                          {sellerExpanded ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                  
+                  <div 
+                    className="transition-all duration-500 ease-out overflow-hidden"
+                    style={{
+                      maxHeight: sellerExpanded ? '500px' : '0',
+                      opacity: sellerExpanded ? '1' : '0'
+                    }}
+                  >
+                    <div className="px-4 md:px-6 pb-4 md:pb-6 border-t border-border">
+                      {seller_description && (
+                        <div className="mb-4">
+                          <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
+                            {sellerShortDesc}
+                          </p>
+                          {seller_description.length > 180 && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setDescriptionExpanded(prev => !prev); }}
+                              className="mt-2 text-[hsl(159.92deg,52.26%,28.54%)] font-medium hover:underline text-sm flex items-center gap-1 transition-all duration-300"
+                            >
+                              <span className="transition-all duration-300 transform overflow-hidden">
+                                {descriptionExpanded ? "Show less" : "Read more"}
+                              </span>
+                              <span className="transition-transform duration-300 transform ml-1">
+                                {descriptionExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                              </span>
+                            </button>
                           )}
                         </div>
                       )}
-                    </div>
-                    
-                    {seller_description && (
-                      <div className="mb-8">
-                        <p className="text-gray-700 dark:text-gray-300 text-base md:text-lg leading-relaxed mb-4">
-                          {sellerShortDesc}
-                        </p>
-                        {seller_description.length > 180 && (
-                          <button
-                            onClick={() => setSellerExpanded((v) => !v)}
-                            className="text-blue-600 dark:text-blue-400 font-medium hover:underline flex items-center gap-1 transition-colors duration-200"
-                          >
-                            {sellerExpanded ? "Show less" : "Read more"}
-                            {sellerExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                          </button>
-                        )}
-                      </div>
-                    )}
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
-                      <div className="flex flex-col items-center text-center p-5 rounded-2xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-sm transition-transform duration-300 hover:scale-[1.02]">
-                        <div className="w-14 h-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-3">
-                          <ShieldCheck className="w-6 h-6 text-green-600 dark:text-green-400" />
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-3">
+                        <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
+                          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                            <ShieldCheck className="w-4 h-4 text-muted-foreground" />
+                          </div>
+                          <span className="text-muted-foreground text-xs sm:text-sm">Quality Assured</span>
                         </div>
-                        <h5 className="font-semibold text-gray-900 dark:text-white mb-2">Quality Assured</h5>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Premium quality products guaranteed</p>
-                      </div>
-                      
-                      <div className="flex flex-col items-center text-center p-5 rounded-2xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-sm transition-transform duration-300 hover:scale-[1.02]">
-                        <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-3">
-                          <ShoppingBag className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                        <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
+                          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                            <ShoppingBag className="w-4 h-4 text-muted-foreground" />
+                          </div>
+                          <span className="text-muted-foreground text-xs sm:text-sm">Secure Checkout</span>
                         </div>
-                        <h5 className="font-semibold text-gray-900 dark:text-white mb-2">Secure Checkout</h5>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Safe and encrypted payment process</p>
-                      </div>
-                      
-                      <div className="flex flex-col items-center text-center p-5 rounded-2xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-sm transition-transform duration-300 hover:scale-[1.02]">
-                        <div className="w-14 h-14 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-3">
-                          <RotateCcw className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                        <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
+                          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                            <RotateCcw className="w-4 h-4 text-muted-foreground" />
+                          </div>
+                          <span className="text-muted-foreground text-xs sm:text-sm">7-Day Return</span>
                         </div>
-                        <h5 className="font-semibold text-gray-900 dark:text-white mb-2">7-Day Return</h5>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Easy returns within 7 days</p>
                       </div>
                     </div>
                   </div>

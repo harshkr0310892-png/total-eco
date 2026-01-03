@@ -490,6 +490,7 @@ export default function TrackOrder() {
   const currentStep = getCurrentStep();
 
   return (
+    <div className="warm-bg min-h-screen">
     <Layout>
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
@@ -771,5 +772,6 @@ export default function TrackOrder() {
         </div>
       </div>
     </Layout>
+    </div>
   );
 }

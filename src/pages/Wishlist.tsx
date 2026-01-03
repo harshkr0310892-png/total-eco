@@ -101,6 +101,7 @@ export default function Wishlist() {
   }
 
   return (
+    <div className="warm-bg min-h-screen">
     <Layout>
       <div className="container mx-auto px-4 py-12">
         <div className="text-center mb-8">
@@ -269,5 +270,6 @@ export default function Wishlist() {
         )}
       </div>
     </Layout>
+    </div>
   );
 }

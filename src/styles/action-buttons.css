@@ -43,4 +43,17 @@
     width: 1.25rem;
     height: 1.25rem;
   }
+  
+  /* Responsive adjustments for product detail page buttons */
+  .flex-col > .btn-xl,
+  .flex-col > button {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 0.5rem;
+  }
+  
+  .flex-col > .btn-xl:last-child,
+  .flex-col > button:last-child {
+    margin-bottom: 0;
+  }
 }
