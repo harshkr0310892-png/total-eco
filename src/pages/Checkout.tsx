@@ -52,14 +52,24 @@ export default function Checkout() {
   const [applyingCoupon, setApplyingCoupon] = useState(false);
   const [agreePolicies, setAgreePolicies] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'online' | 'cod'>('online');
-    const [clientIP, setClientIP] = useState<string>('');
-  
+  const [clientIP, setClientIP] = useState<string>('');
+
+  // 3-step checkout
+  const [checkoutStep, setCheckoutStep] = useState<1 | 2 | 3>(1);
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     email: '',
     address: '',
+    state: '',
+    pincode: '',
+    landmark1: '',
+    landmark2: '',
+    landmark3: '',
   });
+
+  const [stateSearch, setStateSearch] = useState('');
 
   const subtotal = getDiscountedTotal();
   
@@ -156,11 +166,92 @@ export default function Checkout() {
 
   const couponDiscount = calculateCouponDiscount();
   const subtotalAfterCoupon = subtotal - couponDiscount;
-  
+
   // Calculate shipping charge based on order subtotal
   const shippingCharge = subtotal < 300 ? 40 : 0;
-  
+
   const total = subtotalAfterCoupon + gstAmount + shippingCharge;
+
+  const validateDeliveryStep = () => {
+    if (!formData.name || !formData.phone || !formData.address) {
+      toast.error('Please fill in all required fields');
+      return false;
+    }
+
+    const normalizedPhone = normalizeIndianMobile(formData.phone);
+    if (!normalizedPhone) {
+      toast.error('Please enter a valid Indian mobile number');
+      return false;
+    }
+
+    return true;
+  };
+
+  const validateAddressStep = () => {
+    if (!formData.state || !formData.pincode) {
+      toast.error('Please select a state and enter a pin code');
+      return false;
+    }
+
+    // Validate pincode format (6 digits)
+    const pincodeRegex = /^[1-9][0-9]{5}$/;
+    if (!pincodeRegex.test(formData.pincode)) {
+      toast.error('Please enter a valid 6-digit pin code');
+      return false;
+    }
+
+    return true;
+  };
+
+  const getIndianStates = () => [
+    'Andhra Pradesh',
+    'Arunachal Pradesh',
+    'Assam',
+    'Bihar',
+    'Chhattisgarh',
+    'Goa',
+    'Gujarat',
+    'Haryana',
+    'Himachal Pradesh',
+    'Jharkhand',
+    'Karnataka',
+    'Kerala',
+    'Madhya Pradesh',
+    'Maharashtra',
+    'Manipur',
+    'Meghalaya',
+    'Mizoram',
+    'Nagaland',
+    'Odisha',
+    'Punjab',
+    'Rajasthan',
+    'Sikkim',
+    'Tamil Nadu',
+    'Telangana',
+    'Tripura',
+    'Uttar Pradesh',
+    'Uttarakhand',
+    'West Bengal',
+    'Andaman and Nicobar Islands',
+    'Chandigarh',
+    'Dadra and Nagar Haveli',
+    'Daman and Diu',
+    'Delhi',
+    'Lakshadweep',
+    'Puducherry',
+    'Jammu and Kashmir',
+    'Ladakh',
+  ];
+
+  const goToPaymentStep = () => {
+    if (!validateDeliveryStep()) return;
+    setCheckoutStep(2);
+  };
+
+  const goToAddressStep = () => {
+    if (!validateAddressStep()) return;
+    setCheckoutStep(3);
+  };
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
@@ -225,8 +316,17 @@ export default function Checkout() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.name || !formData.phone || !formData.address) {
+
+    // Ensure all steps are completed before placing order
+    if (checkoutStep === 1) {
+      if (validateDeliveryStep()) setCheckoutStep(2);
+      return;
+    } else if (checkoutStep === 2) {
+      if (validateAddressStep()) setCheckoutStep(3);
+      return;
+    }
+
+    if (!formData.name || !formData.phone || !formData.address || !formData.state || !formData.pincode) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -466,6 +566,11 @@ export default function Checkout() {
           customer_phone: `+91${normalizedPhone}`,
           customer_email: formData.email || null,
           customer_address: formData.address,
+          customer_state: formData.state,
+          customer_pincode: formData.pincode,
+          customer_landmark1: formData.landmark1,
+          customer_landmark2: formData.landmark2,
+          customer_landmark3: formData.landmark3,
           total: total,
           status: 'pending',
           payment_method: paymentMethod,
@@ -659,8 +764,6 @@ export default function Checkout() {
       const orderItems = items.map((item) => ({
         order_id: order.id,
         product_id: (item as any).product_id || item.id,
-        // Snapshot seller_id into order_items so seller sales history survives product deletion
-        seller_id: (item as any).seller_id || null,
         product_name: item.name,
         product_price: item.price * (1 - item.discount_percentage / 100),
         quantity: item.quantity,
@@ -677,25 +780,7 @@ export default function Checkout() {
         .from('order_items')
         .insert(orderItems);
 
-      if (itemsError) {
-        // Supabase often nests details under `error` when surfaced by the client.
-        console.error('Error inserting order_items:', itemsError);
-        console.error('Error inserting order_items (expanded):', {
-          message: (itemsError as any).message,
-          details: (itemsError as any).details,
-          hint: (itemsError as any).hint,
-          code: (itemsError as any).code,
-          status: (itemsError as any).status,
-          statusCode: (itemsError as any).statusCode,
-          orderItemsPreview: orderItems.map((oi) => ({
-            order_id: oi.order_id,
-            product_id: oi.product_id,
-            seller_id: (oi as any).seller_id,
-            quantity: oi.quantity,
-          })),
-        });
-        throw itemsError;
-      }
+      if (itemsError) throw itemsError;
 
       // Update coupon used_count if coupon was applied
       if (appliedCoupon) {
@@ -716,6 +801,75 @@ export default function Checkout() {
       setOrderId(newOrderId);
       setOrderComplete(true);
       clearCart();
+      
+      // Send order notification to Telegram
+      try {
+        const orderNotification = {
+          id: newOrderId,
+          customer_name: formData.name,
+          customer_email: formData.email || 'N/A',
+          customer_phone: `+91${normalizedPhone}`,
+          items: items.map(item => ({
+            product_name: item.name,
+            variant: item.variant_info ? `${item.variant_info.attribute_name}: ${item.variant_info.attribute_value}` : 'N/A',
+            quantity: item.quantity,
+            price: item.price * (1 - item.discount_percentage / 100),
+          })),
+          total_amount: total,
+          order_date: new Date().toISOString(),
+          shipping_address: `${formData.address}, ${formData.state} - ${formData.pincode}`,
+          status: 'pending',
+        };
+        
+        console.log('Attempting to send order notification:', orderNotification);
+        
+        // Send full order details to Telegram bot
+        let orderDetails = `📦 *NEW ORDER* 📦\n\n`;
+        orderDetails += `*Order ID:* ${orderNotification.id}\n`;
+        orderDetails += `*Customer Name:* ${orderNotification.customer_name}\n`;
+        orderDetails += `*Email:* ${orderNotification.customer_email}\n`;
+        orderDetails += `*Phone:* ${orderNotification.customer_phone}\n`;
+        orderDetails += `*Payment Method:* ${paymentMethod}\n`;
+        orderDetails += `*Shipping Address:* ${orderNotification.shipping_address}\n`;
+        orderDetails += `*Landmark 1:* ${formData.landmark1 || 'N/A'}\n`;
+        orderDetails += `*Landmark 2:* ${formData.landmark2 || 'N/A'}\n`;
+        orderDetails += `*Landmark 3:* ${formData.landmark3 || 'N/A'}\n`;
+        orderDetails += `*State:* ${formData.state}\n`;
+        orderDetails += `*Pin Code:* ${formData.pincode}\n\n`;
+        
+        orderDetails += `*ORDERED ITEMS:*\n`;
+        orderNotification.items.forEach((item, index) => {
+          orderDetails += `${index + 1}. *${item.product_name}*\n`;
+          orderDetails += `   Variant: ${item.variant}\n`;
+          orderDetails += `   Quantity: ${item.quantity}\n`;
+          orderDetails += `   Price: ₹${item.price}\n\n`;
+        });
+        
+        orderDetails += `*Total Amount:* ₹${orderNotification.total_amount}\n`;
+        orderDetails += `*Order Date:* ${new Date(orderNotification.order_date).toLocaleString()}\n`;
+        orderDetails += `*Status:* ${orderNotification.status}\n`;
+        
+        const telegramUrl = `https://api.telegram.org/bot${import.meta.env.VITE_TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${import.meta.env.VITE_TELEGRAM_CHAT_ID}&text=${encodeURIComponent(orderDetails)}&parse_mode=Markdown`;
+        
+        const response = await fetch(telegramUrl);
+        const result = await response.json();
+        
+        console.log('Telegram test result:', result);
+        
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+          console.error('Failed to send Telegram notification:', result);
+          toast.error('Failed to send notification to Telegram');
+        } else {
+          console.log('Telegram notification sent successfully');
+          toast.success('Order notification sent to Telegram!');
+        }
+      } catch (notificationError) {
+        console.error('Error sending Telegram notification:', notificationError);
+        toast.error('Error sending notification to Telegram');
+      }
+      
       toast.success('Order placed successfully!');
     } catch (error) {
       console.error('Error placing order:', error);
@@ -733,37 +887,37 @@ export default function Checkout() {
   if (orderComplete) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-20 text-center">
+        <div className="container mx-auto px-4 py-12 text-center checkout-order-complete-container">
           <div className="max-w-md mx-auto animate-fade-in">
-            <div className="w-24 h-24 rounded-full gradient-gold flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="w-12 h-12 text-primary-foreground" />
+            <div className="w-16 h-16 rounded-full gradient-gold flex items-center justify-center mx-auto mb-4 checkout-order-complete-icon">
+              <CheckCircle className="w-8 h-8 text-primary-foreground" />
             </div>
-            <h1 className="font-display text-3xl font-bold mb-4">
+            <h1 className="font-display text-2xl font-bold mb-2 checkout-order-complete-title">
               Order Confirmed!
             </h1>
-            <p className="text-muted-foreground mb-6">
+            <p className="text-muted-foreground mb-4 checkout-order-complete-desc">
               Thank you for your order. Your order has been placed successfully.
             </p>
 
-            <div className="bg-card rounded-xl border border-border/50 p-6 mb-8">
-              <p className="text-sm text-muted-foreground mb-2">Your Order ID</p>
-              <div className="flex items-center justify-center gap-3">
-                <span className="font-display text-2xl font-bold text-primary">
+            <div className="bg-card rounded-xl border border-border/50 p-4 mb-4 checkout-order-complete-id-container">
+              <p className="text-xs text-muted-foreground mb-1">Your Order ID</p>
+              <div className="flex items-center justify-center gap-2">
+                <span className="font-display text-lg font-bold text-primary checkout-order-complete-id">
                   {orderId}
                 </span>
                 <button
                   onClick={copyOrderId}
-                  className="p-2 hover:bg-muted rounded-lg transition-colors"
+                  className="p-1 hover:bg-muted rounded-lg transition-colors checkout-order-complete-id-copy"
                 >
-                  <Copy className="w-5 h-5 text-muted-foreground" />
+                  <Copy className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
-              <p className="text-sm text-muted-foreground mt-4">
+              <p className="text-xs text-muted-foreground mt-2 checkout-order-complete-id-text">
                 Save this ID to track your order status.
               </p>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 checkout-order-complete-buttons">
               <Button
                 variant="royal"
                 size="lg"
@@ -788,13 +942,13 @@ export default function Checkout() {
   if (items.length === 0) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-20 text-center">
-          <Crown className="w-20 h-20 text-primary/30 mx-auto mb-4" />
-          <h1 className="font-display text-3xl font-bold mb-4">Your Cart is Empty</h1>
-          <p className="text-muted-foreground mb-8">
+        <div className="container mx-auto px-4 py-12 text-center checkout-empty-container">
+          <Crown className="w-16 h-16 text-primary/30 mx-auto mb-2 checkout-empty-icon" />
+          <h1 className="font-display text-xl font-bold mb-2 checkout-empty-title">Your Cart is Empty</h1>
+          <p className="text-muted-foreground mb-4 checkout-empty-desc">
             Add some products to your cart before checkout.
           </p>
-          <Button variant="royal" onClick={() => navigate('/products')}>
+          <Button variant="royal" onClick={() => navigate('/products')} className="checkout-empty-btn">
             Browse Products
           </Button>
         </div>
@@ -804,161 +958,25 @@ export default function Checkout() {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-12">
-        <h1 className="font-display text-3xl md:text-4xl font-bold mb-8">
+      <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 md:py-12 checkout-container">
+        <h1 className="font-display text-xl sm:text-2xl md:text-4xl font-bold mb-3 sm:mb-4 checkout-title">
           <span className="gradient-gold-text">Checkout</span>
         </h1>
 
-        <div className="grid lg:grid-cols-2 gap-12">
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
-            <div className="bg-card rounded-xl border border-border/50 p-6">
-              <h2 className="font-display text-xl font-semibold mb-6">
-                Delivery Information
-              </h2>
-
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="name">Full Name *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Enter your full name"
-                    required
-                    className="mt-1"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="phone">Phone Number *</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="e.g., 9876543210 (10 digits, starting with 6-9)"
-                    required
-                    className="mt-1"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="email">Email (Optional)</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="Enter your email address"
-                    className="mt-1"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="address">Delivery Address *</Label>
-                  <Textarea
-                    id="address"
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    placeholder="Enter your complete delivery address"
-                    required
-                    className="mt-1"
-                    rows={4}
-                  />
-                </div>
-              </div>
-
-              {/* Payment Method */}
-              <div className="border-t border-border mt-6 pt-6">
-                <h3 className="font-medium mb-3">Payment Method</h3>
-                <div className="flex flex-col gap-3">
-                  <label className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="payment"
-                      value="online"
-                      checked={paymentMethod === 'online'}
-                      onChange={() => setPaymentMethod('online')}
-                      className="accent-primary"
-                    />
-                    <span>Online Payment (Available for all products)</span>
-                  </label>
-                  <label className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="payment"
-                      value="cod"
-                      checked={paymentMethod === 'cod'}
-                      onChange={() => setPaymentMethod('cod')}
-                      disabled={!items.every((it) => it.cash_on_delivery === true)}
-                      className="accent-primary"
-                    />
-                    <span>Cash on Delivery (Only for eligible products)</span>
-                  </label>
-                  {!items.every((it) => it.cash_on_delivery === true) && (
-                    <p className="text-sm text-muted-foreground">Cash on Delivery is not available for some items in your cart.</p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3 bg-muted/30 border border-border/50 rounded-xl p-4">
-              <Checkbox
-                id="agree"
-                checked={agreePolicies}
-                onCheckedChange={(checked) => setAgreePolicies(Boolean(checked))}
-                className="mt-1"
-              />
-              <Label htmlFor="agree" className="text-sm leading-6 cursor-pointer">
-                I agree to the{' '}
-                <Link to="/faq" className="text-primary underline">
-                  FAQs
-                </Link>
-                {' '}and{' '}
-                <Link to="/privacy" className="text-primary underline">
-                  Privacy Policy
-                </Link>
-                .
-              </Label>
-            </div>
-
-            <Button
-              type="submit"
-              variant="royal"
-              size="xl"
-              className="w-full"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Placing Order...
-                </>
-              ) : (
-                <>
-                  <Crown className="w-5 h-5 mr-2" />
-                  Place Order - ₹{total.toFixed(2)}
-                </>
-              )}
-            </Button>
-
-            {/* FAQ Section */}
-            <FAQSection />
-          </form>
-          {/* Order Summary */}
-          <div className="animate-fade-in stagger-2">
-            <div className="bg-card rounded-xl border border-border/50 p-6 sticky top-24">
-              <h2 className="font-display text-xl font-semibold mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 xl:gap-8 checkout-grid">
+          {/* Form - shown first on desktop, last on mobile */}
+          <div className="order-last lg:order-first">
+            <div className="bg-card rounded-xl border border-border/50 p-3 sm:p-4 md:p-6 sticky top-4 md:top-24 checkout-summary-container">
+              <h2 className="font-display text-base sm:text-lg md:text-xl font-semibold mb-3 md:mb-4 checkout-summary-header">
                 Order Summary
               </h2>
-
-              <div className="space-y-4 max-h-64 overflow-y-auto">
+              
+              <div className="space-y-3 max-h-64 overflow-y-auto checkout-summary-items">
                 {items.map((item) => {
                   const discountedPrice = item.price * (1 - item.discount_percentage / 100);
                   return (
-                    <div key={item.id} className="flex gap-4">
-                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                    <div key={item.id} className="flex gap-2 md:gap-3 checkout-summary-item">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0 checkout-summary-item-image">
                         {item.image_url ? (
                           <img
                             src={item.image_url}
@@ -967,17 +985,17 @@ export default function Checkout() {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <Crown className="w-6 h-6 text-muted-foreground/30" />
+                            <Crown className="w-4 h-4 md:w-6 md:h-6 text-muted-foreground/30" />
                           </div>
                         )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium line-clamp-1">{item.name}</p>
-                        <p className="text-sm text-muted-foreground">
+                      <div className="flex-1 min-w-0 checkout-summary-item-details">
+                        <p className="font-medium line-clamp-1 text-xs sm:text-sm md:text-base checkout-summary-item-name">{item.name}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground checkout-summary-item-qty">
                           Qty: {item.quantity} × ₹{discountedPrice.toFixed(2)}
                         </p>
                       </div>
-                      <p className="font-semibold">
+                      <p className="font-semibold text-xs sm:text-sm md:text-base checkout-summary-item-price">
                         ₹{(discountedPrice * item.quantity).toFixed(2)}
                       </p>
                     </div>
@@ -986,8 +1004,8 @@ export default function Checkout() {
               </div>
 
               {/* Coupon Section */}
-              <div className="border-t border-border mt-6 pt-6">
-                <div className="flex items-center gap-2 mb-3">
+              <div className="border-t border-border mt-4 md:mt-6 pt-4 md:pt-6 checkout-coupon-section">
+                <div className="flex items-center gap-2 mb-2 sm:mb-3">
                   <Ticket className="w-4 h-4 text-primary" />
                   <span className="text-sm font-medium">Have a coupon?</span>
                 </div>
@@ -1013,18 +1031,19 @@ export default function Checkout() {
                     </button>
                   </div>
                 ) : (
-                  <div className="flex gap-2">
+                  <div className="flex gap-1 sm:gap-2 checkout-coupon-input">
                     <Input
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                       placeholder="Enter code"
-                      className="flex-1 uppercase"
+                      className="flex-1 uppercase checkout-coupon-input-field"
                     />
                     <Button
                       type="button"
                       variant="royalOutline"
                       onClick={handleApplyCoupon}
                       disabled={applyingCoupon}
+                      className="checkout-coupon-apply-btn"
                     >
                       {applyingCoupon ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Apply'}
                     </Button>
@@ -1033,36 +1052,415 @@ export default function Checkout() {
               </div>
 
               {/* Price Breakdown */}
-              <div className="border-t border-border mt-6 pt-6 space-y-3">
-                <div className="flex justify-between text-muted-foreground">
+              <div className="border-t border-border mt-3 md:mt-6 pt-3 md:pt-6 space-y-2 md:space-y-3 checkout-price-breakdown">
+                <div className="flex justify-between text-muted-foreground text-xs sm:text-sm md:text-base checkout-price-item">
                   <span>Subtotal</span>
                   <span>₹{subtotal.toFixed(2)}</span>
                 </div>
                 {appliedCoupon && couponDiscount > 0 && (
-                  <div className="flex justify-between text-green-600 dark:text-green-400">
+                  <div className="flex justify-between text-green-600 dark:text-green-400 text-xs sm:text-sm md:text-base checkout-price-item">
                     <span>Coupon Discount</span>
                     <span>-₹{couponDiscount.toFixed(2)}</span>
                   </div>
                 )}
                 {gstAmount > 0 && (
-                  <div className="flex justify-between text-orange-600 dark:text-orange-400">
+                  <div className="flex justify-between text-orange-600 dark:text-orange-400 text-xs sm:text-sm md:text-base checkout-price-item">
                     <span>GST</span>
                     <span>+₹{gstAmount.toFixed(2)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-muted-foreground">
+                <div className="flex justify-between text-muted-foreground text-xs sm:text-sm md:text-base checkout-price-item">
                   <span>Shipping</span>
                   <span>{shippingCharge > 0 ? `+₹${shippingCharge.toFixed(2)}` : 'FREE'}</span>
                 </div>
                 <div className="flex justify-between pt-3 border-t border-border">
-                  <span className="font-display text-lg font-semibold">Total</span>
-                  <span className="font-display text-2xl font-bold text-primary">
+                  <span className="font-display text-xs sm:text-base md:text-lg font-semibold checkout-price-item">Total</span>
+                  <span className="font-display text-lg sm:text-xl md:text-2xl font-bold text-primary checkout-price-total">
                     ₹{total.toFixed(2)}
                   </span>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Form - shown second on mobile */}
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 md:space-y-6 animate-fade-in checkout-form">
+            {/* Stepper */}
+            <div className="bg-card rounded-xl border border-border/50 p-2 sm:p-3 md:p-4 checkout-stepper">
+              <div className="flex items-center justify-between gap-1 sm:gap-2 md:gap-4">
+                <button
+                  type="button"
+                  onClick={() => setCheckoutStep(1)}
+                  className={cn(
+                    'flex-1 text-left rounded-lg px-1 sm:px-2 md:px-3 py-2 transition-colors checkout-step',
+                    checkoutStep === 1 ? 'bg-muted font-semibold' : 'hover:bg-muted/60'
+                  )}
+                >
+                  <div className="text-xs md:text-xs text-muted-foreground checkout-step-number">Step 1</div>
+                  <div className="font-display text-sm md:text-base checkout-step-title">Delivery Information</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (checkoutStep === 1) {
+                      if (validateDeliveryStep()) setCheckoutStep(2);
+                    } else if (checkoutStep === 3) {
+                      setCheckoutStep(2);
+                    }
+                  }}
+                  className={cn(
+                    'flex-1 text-left rounded-lg px-1 sm:px-2 md:px-3 py-2 transition-colors checkout-step',
+                    checkoutStep === 2 ? 'bg-muted font-semibold' : 'hover:bg-muted/60'
+                  )}
+                >
+                  <div className="text-xs md:text-xs text-muted-foreground checkout-step-number">Step 2</div>
+                  <div className="font-display text-sm md:text-base checkout-step-title">Address Details</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (checkoutStep === 2) {
+                      if (validateAddressStep()) setCheckoutStep(3);
+                    } else if (checkoutStep === 1) {
+                      if (validateDeliveryStep()) setCheckoutStep(2);
+                    }
+                  }}
+                  className={cn(
+                    'flex-1 text-left rounded-lg px-1 sm:px-2 md:px-3 py-2 transition-colors checkout-step',
+                    checkoutStep === 3 ? 'bg-muted font-semibold' : 'hover:bg-muted/60'
+                  )}
+                >
+                  <div className="text-xs md:text-xs text-muted-foreground checkout-step-number">Step 3</div>
+                  <div className="font-display text-sm md:text-base checkout-step-title">Payment</div>
+                </button>
+              </div>
+            </div>
+
+            {/* Step 1: Delivery */}
+            {checkoutStep === 1 && (
+              <div className="bg-card rounded-xl border border-border/50 p-3 sm:p-4 md:p-6 animate-in fade-in slide-in-from-left-2 duration-300 checkout-step-content">
+                <h2 className="font-display text-base sm:text-lg md:text-xl font-semibold mb-3 md:mb-4 checkout-step-header">
+                  Delivery Information
+                </h2>
+
+                <div className="space-y-2 sm:space-y-3 checkout-form-group">
+                  <div>
+                    <Label htmlFor="name">Full Name *</Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="Enter your full name"
+                      required
+                      className="mt-1 checkout-input"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="phone">Phone Number *</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      placeholder="e.g., 9876543210 (10 digits, starting with 6-9)"
+                      required
+                      className="mt-1 checkout-input"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="email">Email (Optional)</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="Enter your email address"
+                      className="mt-1 checkout-input"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="address">Delivery Address *</Label>
+                    <Textarea
+                      id="address"
+                      value={formData.address}
+                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                      placeholder="Enter your complete delivery address"
+                      required
+                      className="mt-1 checkout-textarea"
+                      rows={3}
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-3 md:mt-6 flex gap-2 sm:gap-3">
+                  <Button
+                    type="button"
+                    variant="royal"
+                    size="lg"
+                    className="w-full checkout-continue-btn"
+                    onClick={goToPaymentStep}
+                  >
+                    Continue to Address Details
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Address Details */}
+            {checkoutStep === 2 && (
+              <div className="bg-card rounded-xl border border-border/50 p-3 sm:p-4 md:p-6 animate-in fade-in slide-in-from-right-2 duration-300 checkout-step-content">
+                <h2 className="font-display text-base sm:text-lg md:text-xl font-semibold mb-3 md:mb-4 checkout-step-header">
+                  Address Details
+                </h2>
+
+                <div className="space-y-2 sm:space-y-3 checkout-form-group">
+                  <div>
+                    <Label htmlFor="state">Select State *</Label>
+                    <div className="relative">
+                      <Input
+                        id="state"
+                        value={stateSearch}
+                        onChange={(e) => setStateSearch(e.target.value)}
+                        placeholder="Search for a state"
+                        required
+                        className="w-full checkout-input"
+                        onFocus={() => setStateSearch(formData.state)}
+                      />
+                      {stateSearch && (
+                        <div className="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-auto">
+                          {getIndianStates().filter(state => 
+                            state.toLowerCase().includes(stateSearch.toLowerCase())
+                          ).map(state => (
+                            <div
+                              key={state}
+                              className="p-2 hover:bg-muted cursor-pointer"
+                              onClick={() => {
+                                setFormData({ ...formData, state });
+                                setStateSearch(state);
+                              }}
+                            >
+                              {state}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <input
+                      type="hidden"
+                      value={formData.state}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="pincode">Pin Code *</Label>
+                    <Input
+                      id="pincode"
+                      type="text"
+                      value={formData.pincode}
+                      onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
+                      placeholder="Enter 6-digit pin code"
+                      required
+                      className="mt-1 checkout-input"
+                      maxLength={6}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="landmark1">Landmark 1 (Optional)</Label>
+                    <Input
+                      id="landmark1"
+                      value={formData.landmark1}
+                      onChange={(e) => setFormData({ ...formData, landmark1: e.target.value })}
+                      placeholder="Enter first landmark"
+                      className="mt-1 checkout-input"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="landmark2">Landmark 2 (Optional)</Label>
+                    <Input
+                      id="landmark2"
+                      value={formData.landmark2}
+                      onChange={(e) => setFormData({ ...formData, landmark2: e.target.value })}
+                      placeholder="Enter second landmark"
+                      className="mt-1 checkout-input"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="landmark3">Landmark 3 (Optional)</Label>
+                    <Input
+                      id="landmark3"
+                      value={formData.landmark3}
+                      onChange={(e) => setFormData({ ...formData, landmark3: e.target.value })}
+                      placeholder="Enter third landmark"
+                      className="mt-1 checkout-input"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-3 md:mt-6 flex gap-2 sm:gap-3">
+                  <Button
+                    type="button"
+                    variant="royalOutline"
+                    size="lg"
+                    className="w-full checkout-back-btn"
+                    onClick={() => setCheckoutStep(1)}
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="royal"
+                    size="lg"
+                    className="w-full checkout-continue-btn"
+                    onClick={goToAddressStep}
+                  >
+                    Continue to Payment
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Payment */}
+            {checkoutStep === 3 && (
+              <>
+                <div className="bg-card rounded-xl border border-border/50 p-3 sm:p-4 md:p-6 animate-in fade-in slide-in-from-right-2 duration-300 checkout-payment-content">
+                  <h2 className="font-display text-base sm:text-lg md:text-xl font-semibold mb-3 md:mb-4 checkout-payment-header">Payment</h2>
+
+                  {/* Delivery summary */}
+                  <div className="mb-3 md:mb-6 rounded-lg border border-border/50 p-2 sm:p-3 md:p-4 bg-muted/20 checkout-delivery-summary">
+                    <div className="flex items-center justify-between gap-1 sm:gap-2 md:gap-3 checkout-delivery-info">
+                      <div>
+                        <div className="text-xs sm:text-sm font-medium">Deliver to</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground">
+                          {formData.name} • {formData.phone}
+                        </div>
+                        <div className="text-xs sm:text-sm text-muted-foreground whitespace-pre-line">
+                          {formData.address}
+                        </div>
+                        <div className="text-xs sm:text-sm text-muted-foreground">
+                          {formData.state}, {formData.pincode}
+                        </div>
+                        {formData.landmark1 && (
+                          <div className="text-xs sm:text-sm text-muted-foreground">
+                            Landmarks: {formData.landmark1}{formData.landmark2 ? `, ${formData.landmark2}` : ''}{formData.landmark3 ? `, ${formData.landmark3}` : ''}
+                          </div>
+                        )}
+                      </div>
+                      <Button
+                        type="button"
+                        variant="royalOutline"
+                        size="sm"
+                        onClick={() => setCheckoutStep(2)}
+                        className="checkout-delivery-edit-btn"
+                      >
+                        Edit
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Payment Method */}
+                  <div>
+                    <h3 className="font-medium mb-3">Payment Method</h3>
+                    <div className="flex flex-col gap-2 checkout-payment-methods">
+                      <label className="flex items-center gap-2 md:gap-3 checkout-payment-method">
+                        <input
+                          type="radio"
+                          name="payment"
+                          value="online"
+                          checked={paymentMethod === 'online'}
+                          onChange={() => setPaymentMethod('online')}
+                          className="accent-primary"
+                        />
+                        <span className="text-sm md:text-base">Online Payment (Available for all products)</span>
+                      </label>
+                      <label className="flex items-center gap-2 md:gap-3 checkout-payment-method">
+                        <input
+                          type="radio"
+                          name="payment"
+                          value="cod"
+                          checked={paymentMethod === 'cod'}
+                          onChange={() => setPaymentMethod('cod')}
+                          disabled={!items.every((it) => it.cash_on_delivery === true)}
+                          className="accent-primary"
+                        />
+                        <span className="text-sm md:text-base">Cash on Delivery (Only for eligible products)</span>
+                      </label>
+                      {!items.every((it) => it.cash_on_delivery === true) && (
+                        <p className="text-xs md:text-sm text-muted-foreground">
+                          Cash on Delivery is not available for some items in your cart.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2 sm:gap-3 bg-muted/30 border border-border/50 rounded-xl p-3 sm:p-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <Checkbox
+                    id="agree"
+                    checked={agreePolicies}
+                    onCheckedChange={(checked) => setAgreePolicies(Boolean(checked))}
+                    className="mt-1"
+                  />
+                  <Label htmlFor="agree" className="text-xs sm:text-sm leading-5 sm:leading-6 cursor-pointer">
+                    I agree to the{' '}
+                    <Link to="/faq" className="text-primary underline">
+                      FAQs
+                    </Link>
+                    {' '}and{' '}
+                    <Link to="/privacy" className="text-primary underline">
+                      Privacy Policy
+                    </Link>
+                    .
+                  </Label>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <Button
+                    type="button"
+                    variant="royalOutline"
+                    size="xl"
+                    className="w-full sm:w-1/2"
+                    onClick={() => setCheckoutStep(1)}
+                    disabled={isLoading}
+                  >
+                    Back
+                  </Button>
+
+                  <Button
+                    type="submit"
+                    variant="royal"
+                    size="xl"
+                    className="w-full sm:w-1/2"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        Placing Order...
+                      </>
+                    ) : (
+                      <>
+                        <Crown className="w-5 h-5 mr-2" />
+                        Place Order - ₹{total.toFixed(2)}
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {/* FAQ Section */}
+                <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 pt-4">
+                  <FAQSection />
+                </div>
+              </>
+            )}
+          </form>
+
         </div>
       </div>
     </Layout>

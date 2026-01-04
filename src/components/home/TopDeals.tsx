@@ -80,7 +80,8 @@ export function TopDeals() {
               .limit(12);
           }
 
-          const { data, error } = resp as any;
+          const response = resp as any;
+          const { data, error } = response;
           if (error) {
             console.error('TopDeals: error fetching selected products', error);
             return [];
@@ -89,12 +90,13 @@ export function TopDeals() {
           return ids.map(id => map.get(id)).filter(Boolean);
         }
 
-        const { data, error } = await supabase
+        const response = await supabase
           .from('products')
           .select('*')
           .eq('is_active', true)
           .order('discount_percentage', { ascending: false })
           .limit(12);
+        const { data, error } = response as any;
         if (error) {
           console.error('TopDeals: error fetching fallback products', error);
           return [];
@@ -115,16 +117,21 @@ export function TopDeals() {
 
   if (isLoading) {
     return (
-      <section className="container mx-auto px-4 py-6">
-        <h3 className="font-display text-xl font-semibold mb-4">{section?.title || 'Top Deals'}</h3>
-        <div className="flex gap-4 overflow-x-auto hide-scrollbar">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="w-40 min-w-[160px] space-y-2">
-              <Skeleton className="w-full aspect-square rounded-lg" />
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
-            </div>
-          ))}
+      <section className="max-w-6xl mx-auto px-4 py-6">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-display text-lg font-semibold text-foreground">{section?.title || 'Top Deals'}</h3>
+          <div className="text-sm text-muted-foreground">View all</div>
+        </div>
+        <div className="bg-card rounded-xl p-4 relative border border-border/50 shadow-sm">
+          <div className="flex gap-3 md:gap-4 overflow-x-auto py-2 flex-1 scrollbar-hide">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="flex-shrink-0 text-center w-24 md:w-28 min-w-[96px] md:min-w-[112px]">
+                <Skeleton className="w-full h-24 md:h-28 rounded-lg bg-muted mb-2 p-2 md:p-3" />
+                <Skeleton className="h-3 w-3/4 mx-auto mb-1" />
+                <Skeleton className="h-2 w-1/2 mx-auto" />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     );
@@ -132,30 +139,31 @@ export function TopDeals() {
 
   if (!products || products.length === 0) {
     return (
-      <section className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-display text-xl font-semibold">{section?.title || 'Top Deals'}</h3>
+      <section className="max-w-6xl mx-auto px-4 py-6">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-display text-lg font-semibold text-foreground">{section?.title || 'Top Deals'}</h3>
+          <div className="text-sm text-muted-foreground">View all</div>
         </div>
-        <div className="p-6 bg-card rounded-lg border border-border/50">
-          <p className="text-sm text-muted-foreground">No deals to show. Check that you have active products in the `products` table or create a `home_sections` entry with type `top_deals` and `product_ids` (use the Admin CMS → Sections).</p>
+        <div className="bg-card rounded-xl p-6 border border-border/50 shadow-sm">
+          <p className="text-sm text-muted-foreground text-center">No deals to show. Check that you have active products in the `products` table or create a `home_sections` entry with type `top_deals` and `product_ids` (use the Admin CMS → Sections).</p>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="max-w-5xl mx-auto px-4 py-6">
+    <section className="max-w-6xl mx-auto px-4 py-6">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="font-display text-lg font-semibold">{section?.title || 'Top Deals'}</h3>
-        <Link to="/products" className="text-sm text-muted-foreground">View all</Link>
+        <h3 className="font-display text-lg font-semibold text-foreground">{section?.title || 'Top Deals'}</h3>
+        <Link to="/products" className="text-sm text-muted-foreground hover:text-primary transition-colors">View all</Link>
       </div>
 
-      <div className="bg-card rounded-lg p-3 relative">
+      <div className="bg-card rounded-xl p-4 relative border border-border/50 shadow-sm">
         <div className="flex items-center gap-2">
           <button
             onClick={() => scroll('left')}
             disabled={!canScrollLeft}
-            className="w-8 h-8 rounded-full bg-blue-100 hover:bg-blue-300 disabled:bg-blue-50 disabled:text-blue-200 text-blue-600 flex items-center justify-center flex-shrink-0 z-10"
+            className="w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 disabled:bg-muted disabled:text-muted-foreground text-primary flex items-center justify-center flex-shrink-0 z-10 transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -164,22 +172,22 @@ export function TopDeals() {
             ref={scrollContainerRef}
             onScroll={checkScroll}
             onLoad={checkScroll}
-            className="flex gap-4 overflow-x-hidden py-2 flex-1"
+            className="flex gap-3 md:gap-4 overflow-x-auto py-2 flex-1 scrollbar-hide"
           >
             {products.map((p: any) => (
               <Link
                 key={p.id}
                 to={`/product/${p.id}`}
-                className="w-28 min-w-[112px] flex-shrink-0 text-center"
+                className="flex-shrink-0 text-center w-24 md:w-28 min-w-[96px] md:min-w-[112px]"
               >
-                <div className="w-full h-24 rounded-lg bg-white overflow-hidden flex items-center justify-center mb-2 shadow-sm p-3">
+                <div className="w-full h-24 md:h-28 rounded-lg bg-muted overflow-hidden flex items-center justify-center mb-2 shadow-sm p-2 md:p-3 transition-transform hover:scale-105">
                     {p.image_url ? (
                       <img src={p.image_url} alt={p.name} className="max-h-full max-w-full object-contain" />
                     ) : (
-                      <div className="text-sm text-muted-foreground">No Image</div>
+                      <div className="text-xs text-muted-foreground">No Image</div>
                     )}
                   </div>
-                <div className="text-sm font-medium line-clamp-2 mb-1">{p.name}</div>
+                <div className="text-xs md:text-sm font-medium line-clamp-2 mb-1 text-foreground">{p.name}</div>
                 <div className="text-xs text-muted-foreground">From ₹{formatPrice(p.price)}</div>
               </Link>
             ))}
@@ -188,7 +196,7 @@ export function TopDeals() {
           <button
             onClick={() => scroll('right')}
             disabled={!canScrollRight}
-            className="w-8 h-8 rounded-full bg-blue-100 hover:bg-blue-300 disabled:bg-blue-50 disabled:text-blue-200 text-blue-600 flex items-center justify-center flex-shrink-0 z-10"
+            className="w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 disabled:bg-muted disabled:text-muted-foreground text-primary flex items-center justify-center flex-shrink-0 z-10 transition-colors"
           >
             <ChevronRight className="w-4 h-4" />
           </button>

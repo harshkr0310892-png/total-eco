@@ -74,6 +74,11 @@ interface Order {
   customer_name: string;
   customer_phone: string;
   customer_address: string;
+  customer_state: string | null;
+  customer_pincode: string | null;
+  customer_landmark1: string | null;
+  customer_landmark2: string | null;
+  customer_landmark3: string | null;
   customer_email: string | null;
   status: string;
   payment_method: 'online' | 'cod';
@@ -1722,8 +1727,8 @@ export default function SellerDashboard() {
                     <div key={order.id} className="p-4 bg-card rounded-xl border border-border/50">
                       <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
                         <div>
-                          <p className="text-sm text-muted-foreground">Order ID</p>
-                          <p className="font-display text-xl font-bold">{order.order_id}</p>
+                          <p className="text-sm" style={{color: 'hsl(0deg 0% 0%)'}}>Order ID</p>
+                          <p className="font-display text-xl font-bold" style={{color: 'hsl(0deg 0% 0%)'}}>{order.order_id}</p>
                           <div className="mt-1">
                             <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100">
                               {order.payment_method === "online" ? "Online Payment" : "Cash on Delivery"}
@@ -1736,7 +1741,7 @@ export default function SellerDashboard() {
                         </div>
                       </div>
                       <div className="mb-3 p-3 bg-muted/30 rounded-lg">
-                        <p className="text-sm font-medium mb-2">Products Ordered:</p>
+                        <p className="text-sm font-medium mb-2" style={{color: 'hsl(0deg 0% 0%)'}}>Products Ordered:</p>
                         <div className="space-y-2">
                           {items.map((item) => {
                             const product = getProductById(item.product_id);
@@ -1769,15 +1774,31 @@ export default function SellerDashboard() {
                           })}
                         </div>
                       </div>
-                      <div className="grid sm:grid-cols-2 gap-3 mb-3">
+                      <div className="space-y-3 mb-3">
                         <div>
-                          <p className="text-sm text-muted-foreground">Customer</p>
-                          <p className="font-semibold text-base">{order.customer_name}</p>
+                          <p className="text-sm" style={{color: 'hsl(0deg 0% 0%)'}}>Customer</p>
+                          <p className="font-semibold text-base" style={{color: 'hsl(0deg 0% 0%)'}}>{order.customer_name}</p>
                           <p className="text-sm text-muted-foreground">{order.customer_phone}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Address</p>
-                          <p className="text-sm">{order.customer_address}</p>
+                          <p className="text-sm text-muted-foreground mb-1">Address Details</p>
+                          <div className="bg-muted/20 rounded-lg p-3 space-y-1">
+                            <p className="text-sm" style={{color: 'hsl(0deg 0% 0%)'}}>{order.customer_address}</p>
+                            {order.customer_state && (
+                              <p className="text-sm" style={{color: 'hsl(0deg 0% 0%)'}}>
+                                <span className="font-medium">State:</span> {order.customer_state}
+                                {order.customer_pincode && ` | Pincode: ${order.customer_pincode}`}
+                              </p>
+                            )}
+                            {(order.customer_landmark1 || order.customer_landmark2 || order.customer_landmark3) && (
+                              <div className="text-sm" style={{color: 'hsl(0deg 0% 0%)'}}>
+                                <p className="font-medium" style={{color: 'hsl(0deg 0% 0%)'}}>Landmarks:</p>
+                                {order.customer_landmark1 && <p style={{color: 'hsl(0deg 0% 0%)'}}>• {order.customer_landmark1}</p>}
+                                {order.customer_landmark2 && <p style={{color: 'hsl(0deg 0% 0%)'}}>• {order.customer_landmark2}</p>}
+                                {order.customer_landmark3 && <p style={{color: 'hsl(0deg 0% 0%)'}}>• {order.customer_landmark3}</p>}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-border/50">

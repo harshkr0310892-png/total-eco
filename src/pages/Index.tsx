@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import ScrollReveal from "@/components/ScrollReveal";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/products/ProductCard";
@@ -6,11 +7,34 @@ import { BannerCarousel } from "@/components/home/BannerCarousel";
 import TopDeals from "@/components/home/TopDeals";
 import DealGrid from "@/components/home/DealGrid";
 import { SpecialOfferPopup } from "@/components/SpecialOfferPopup";
-import { Crown, Sparkles, Truck, Shield, Gift } from "lucide-react";
+import { 
+  Crown, 
+  Sparkles, 
+  Truck, 
+  Shield, 
+  Gift, 
+  ArrowRight, 
+  Star,
+  Zap,
+  Heart,
+  ShoppingBag,
+  ChevronRight,
+  Package,
+  Clock,
+  BadgeCheck,
+  Flame,
+  TrendingUp,
+  Award,
+  Headphones,
+  RefreshCw,
+  CreditCard,
+  Mail
+} from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
 
 const iconMap: Record<string, React.ElementType> = {
   crown: Crown,
@@ -18,9 +42,155 @@ const iconMap: Record<string, React.ElementType> = {
   shield: Shield,
   gift: Gift,
   sparkles: Sparkles,
+  zap: Zap,
+  package: Package,
+  clock: Clock,
+  badge: BadgeCheck,
+  headphones: Headphones,
+  refresh: RefreshCw,
+  card: CreditCard,
 };
 
+// Enhanced Feature Card
+const FeatureCard = ({ 
+  icon: Icon, 
+  title, 
+  description, 
+  color,
+  index
+}: { 
+  icon: React.ElementType; 
+  title: string; 
+  description: string;
+  color: string;
+  index: number;
+}) => (
+  <div 
+    className="group relative overflow-hidden rounded-3xl bg-card p-6 md:p-8 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 border border-border"
+    style={{ animationDelay: `${index * 100}ms` }}
+  >
+    {/* Gradient Blob */}
+    <div className={cn(
+      "absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500",
+      color
+    )} />
+    
+    <div className="relative z-10">
+      <div className={cn(
+        "w-16 h-16 rounded-2xl flex items-center justify-center mb-5 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3",
+        color
+      )}>
+        <Icon className="w-8 h-8 text-white" />
+      </div>
+      <h3 className="font-bold text-lg md:text-xl mb-3 text-foreground">
+        {title}
+      </h3>
+      <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
+        {description}
+      </p>
+    </div>
+  </div>
+);
+
+// Enhanced Category Card
+const CategoryCard = ({ category, index }: { category: any; index: number }) => (
+  <Link
+    to={`/products?category=${encodeURIComponent(category.id)}`}
+    className="group flex flex-col items-center flex-shrink-0"
+    style={{ animationDelay: `${index * 50}ms` }}
+  >
+    <div className="relative w-20 h-20 md:w-28 md:h-28 rounded-3xl overflow-hidden bg-gradient-to-br from-primary/10 to-accent/10 border-2 border-border shadow-lg group-hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2 group-hover:scale-105">
+      {category.image_url ? (
+        <img 
+          src={category.image_url} 
+          alt={category.name} 
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-500 to-pink-500">
+          <span className="text-3xl font-bold text-white">
+            {category.name?.charAt(0)}
+          </span>
+        </div>
+      )}
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
+      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
+        <div className="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center">
+          <ArrowRight className="w-5 h-5 text-slate-900" />
+        </div>
+      </div>
+    </div>
+    <span className="mt-4 text-xs md:text-sm font-semibold text-foreground group-hover:text-primary transition-colors duration-300 text-center line-clamp-2 max-w-[80px] md:max-w-[120px]">
+      {category.name}
+    </span>
+  </Link>
+);
+
+// Section Header
+const SectionHeader = ({ 
+  title, 
+  subtitle, 
+  action,
+  actionLink,
+  icon: Icon,
+  gradient
+}: { 
+  title: string; 
+  subtitle?: string;
+  action?: string;
+  actionLink?: string;
+  icon?: React.ElementType;
+  gradient?: string;
+}) => (
+  <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10 md:mb-14">
+    <div className="flex items-start gap-4">
+      {Icon && (
+        <div className={cn(
+          "hidden md:flex w-14 h-14 rounded-2xl items-center justify-center flex-shrink-0",
+          gradient || "bg-gradient-to-br from-primary to-accent"
+        )}>
+          <Icon className="w-7 h-7 text-white" />
+        </div>
+      )}
+      <div>
+        <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground tracking-tight">
+          {title}
+        </h2>
+        {subtitle && (
+          <p className="mt-2 text-muted-foreground text-sm md:text-base max-w-xl">
+            {subtitle}
+          </p>
+        )}
+      </div>
+    </div>
+    {action && actionLink && (
+      <Link 
+        to={actionLink}
+        className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-muted text-sm font-semibold text-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300"
+      >
+        {action}
+        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+      </Link>
+    )}
+  </div>
+);
+
+// Stats Badge
+const StatBadge = ({ icon: Icon, label, value, color }: { icon: React.ElementType; label: string; value: string; color: string }) => (
+  <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-card/80 backdrop-blur-sm border border-border">
+    <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", color)}>
+      <Icon className="w-5 h-5 text-white" />
+    </div>
+    <div>
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="font-bold text-foreground">{value}</p>
+    </div>
+  </div>
+);
+
 export default function Index() {
+  const [email, setEmail] = useState("");
 
   const { data: products, isLoading: productsLoading } = useQuery({
     queryKey: ['featured-products'],
@@ -53,10 +223,8 @@ export default function Index() {
   const featuredProductsSection = sections?.find(s => s.section_type === 'featured_products');
   const ctaSection = sections?.find(s => s.section_type === 'cta');
 
-  // Show only first 4 products
-  const featuredProducts = products?.slice(0, 4);
+  const featuredProducts = products?.slice(0, 8);
 
-  // Fetch categories for top strip
   const { data: categories } = useQuery({
     queryKey: ['home-categories'],
     queryFn: async () => {
@@ -64,7 +232,6 @@ export default function Index() {
         .from('categories')
         .select('*')
         .eq('is_active', true)
-        // Only show categories created by admin (no seller_id)
         .is('seller_id', null)
         .order('sort_order', { ascending: true });
       if (error) throw error;
@@ -74,229 +241,399 @@ export default function Index() {
 
   const topCategories = useMemo(() => categories?.slice(0, 10) || [], [categories]);
 
+  const defaultFeatures = [
+    { 
+      icon: Truck, 
+      title: 'Lightning Fast Delivery', 
+      description: 'Get your orders delivered within 2-3 business days. Free shipping on orders above ₹499.',
+      color: 'bg-gradient-to-br from-primary to-accent'
+    },
+    { 
+      icon: Shield, 
+      title: '100% Secure Payments', 
+      description: 'Your payment information is processed securely. We support all major payment methods.',
+      color: 'bg-gradient-to-br from-primary to-accent'
+    },
+    { 
+      icon: RefreshCw, 
+      title: 'Easy Returns', 
+      description: '7-day hassle-free returns. No questions asked. Full refund guaranteed.',
+      color: 'bg-gradient-to-br from-primary to-accent'
+    },
+    { 
+      icon: Headphones, 
+      title: '24/7 Premium Support', 
+      description: 'Our dedicated support team is here to help you anytime via chat, email, or phone.',
+      color: 'bg-gradient-to-br from-primary to-accent'
+    },
+  ];
 
   return (
-    <div className="warm-bg min-h-screen">
-    <Layout>
-      <SpecialOfferPopup />
-      
-      {/* Category strip (top) */}
-      {topCategories.length > 0 && (
-        <section className="container mx-auto px-4 py-6">
-          <div className="bg-card rounded-xl p-6 shadow-sm border border-border/50">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-foreground font-display">
-                <span className="gradient-gold-text">Shop with category</span>
-              </h2>
-              <Link to="/products" className="text-sm text-primary hover:underline hidden md:block">
-                View All →
-              </Link>
-            </div>
-            <Link to="/products" className="text-sm text-primary hover:underline md:hidden text-center mb-4 block">
-              View All →
-            </Link>
-            <div className="flex items-center justify-center gap-6 overflow-x-auto hide-scrollbar pb-2">
-              {topCategories.map((cat: any) => (
-                <Link
-                  key={cat.id}
-                  to={`/products?category=${encodeURIComponent(cat.id)}`}
-                  className="flex flex-col items-center text-center min-w-[96px] transition-transform hover:scale-105"
-                >
-                  <div className="w-16 h-16 rounded-lg bg-white overflow-hidden shadow-sm flex items-center justify-center border border-border">
-                    {cat.image_url ? (
-                      <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="text-sm text-muted-foreground">{cat.name?.charAt(0)}</div>
-                    )}
-                  </div>
-                  <span className="text-xs mt-2 text-muted-foreground font-medium">{cat.name}</span>
+    <div className="min-h-screen bg-gradient-to-b from-background via-card to-background">
+      <Layout>
+        <SpecialOfferPopup />
+        
+        {/* ========== HERO SECTION ========== */}
+        <section className="relative overflow-hidden min-h-[70vh] sm:min-h-[80vh] md:min-h-[90vh] flex items-center">
+          {/* Animated Background */}
+          <div className="absolute inset-0">
+            {/* Main gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-card to-accent/5" />
+            
+            {/* Animated blobs */}
+            <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-violet-400 to-purple-500 rounded-full blur-3xl opacity-20 animate-blob" />
+            <div className="absolute top-40 right-10 w-96 h-96 bg-gradient-to-br from-pink-400 to-rose-500 rounded-full blur-3xl opacity-20 animate-blob animation-delay-2000" />
+            <div className="absolute bottom-20 left-1/3 w-80 h-80 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full blur-3xl opacity-20 animate-blob animation-delay-4000" />
+            
+            {/* Grid pattern */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]" />
+          </div>
+
+          <div className="relative z-10 container mx-auto px-4 py-16 md:py-24">
+            <div className="max-w-5xl mx-auto text-center">
+              {/* Announcement Badge */}
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 mb-8 animate-fade-in-up">
+                <div className="flex items-center gap-1.5">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-500 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-violet-600"></span>
+                  </span>
+                  <span className="text-sm font-semibold text-primary">
+                    New Arrivals Just Dropped!
+                  </span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-primary" />
+              </div>
+
+              {/* Main Heading */}
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight mb-4 sm:mb-6 animate-fade-in-up animation-delay-200">
+                <span className="text-foreground">
+                  {heroSection?.title?.split(' ')[0] || 'Shop'}
+                </span>
+                <span className="block mt-2 bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent">
+                  {heroSection?.title?.split(' ').slice(1).join(' ') || 'Premium Quality'}
+                </span>
+              </h1>
+
+              {/* Subheading */}
+              <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-xs sm:max-w-2xl mx-auto mb-6 sm:mb-10 animate-fade-in-up animation-delay-400 leading-relaxed">
+                {heroSection?.subtitle || 'Discover our curated collection of premium products. Best quality, best prices, best experience!'}
+              </p>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-fade-in-up animation-delay-600">
+                <Link to={(heroSection?.content as any)?.buttonLink || '/products'}>
+                  <Button 
+                    size="lg" 
+                    className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-bold bg-gradient-to-r from-primary via-accent to-warning hover:from-primary/90 hover:via-accent/90 hover:to-warning/90 text-primary-foreground shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/30 transition-all duration-300 rounded-2xl"
+                  >
+                    <ShoppingBag className="w-5 h-5 mr-2" />
+                    {(heroSection?.content as any)?.buttonText || 'Start Shopping'}
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
                 </Link>
-              ))}
+                <Link to="/track-order">
+                  <Button 
+                    variant="outline" 
+                    size="lg"
+                    className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-bold border-2 border-border hover:border-primary/50 hover:bg-primary/5 rounded-2xl transition-all duration-300"
+                  >
+                    <Package className="w-5 h-5 mr-2" />
+                    Track Your Order
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Trust Stats */}
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mt-6 sm:mt-8 md:mt-14 animate-fade-in-up animation-delay-800">
+                <StatBadge 
+                  icon={Star} 
+                  label="Rating" 
+                  value="4.9/5" 
+                  color="bg-gradient-to-br from-primary to-accent" 
+                />
+                <StatBadge 
+                  icon={Heart} 
+                  label="Happy Customers" 
+                  value="50,000+" 
+                  color="bg-gradient-to-br from-primary to-accent" 
+                />
+                <StatBadge 
+                  icon={BadgeCheck} 
+                  label="Products" 
+                  value="Verified" 
+                  color="bg-gradient-to-br from-primary to-accent" 
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Scroll Indicator */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+            <div className="w-8 h-12 rounded-full border-2 border-border flex items-start justify-center p-2">
+              <div className="w-1.5 h-3 bg-primary rounded-full animate-pulse" />
             </div>
           </div>
         </section>
-      )}
 
-      {/* Banner Carousel */}
-      <section className="container mx-auto px-4 py-6">
-        <BannerCarousel />
-      </section>
+        {/* ========== CATEGORIES SECTION ========== */}
+        {topCategories.length > 0 && (
+          <section className="py-12 md:py-20">
+            <div className="container mx-auto px-4">
+              <div className="bg-card rounded-2xl sm:rounded-3xl md:rounded-[2rem] p-4 sm:p-6 md:p-10 border border-border shadow-xl shadow-foreground/10">
+                <SectionHeader 
+                  title="Shop by Category"
+                  subtitle="Browse through our diverse collection of categories"
+                  action="View All Categories"
+                  actionLink="/products"
+                  icon={Sparkles}
+                  gradient="bg-gradient-to-br from-primary to-accent"
+                />
+                
+                <div className="flex items-start gap-3 sm:gap-5 md:gap-8 overflow-x-auto pb-4 scrollbar-hide">
+                  {topCategories.map((cat: any, index: number) => (
+                    <CategoryCard key={cat.id} category={cat} index={index} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
-      {/* Hero Section */}
-      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-card to-background" />
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-20 left-20 w-64 h-64 rounded-full bg-primary/20 blur-3xl animate-float" />
-          <div className="absolute bottom-20 right-20 w-96 h-96 rounded-full bg-primary/10 blur-3xl animate-float" style={{ animationDelay: '1s' }} />
-        </div>
-        
-        {/* Content */}
-        <div className="relative z-10 container mx-auto px-4 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6 animate-fade-in">
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm text-primary font-medium">Premium Collection</span>
-          </div>
-          
-          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold mb-6 animate-fade-in stagger-1">
-            <span className="text-foreground">
-              {heroSection?.title?.split(' ')[0] || 'Discover'}
-            </span>
-            <br />
-            <span className="gradient-gold-text">
-              {heroSection?.title?.split(' ').slice(1).join(' ') || 'Royal Elegance'}
-            </span>
-          </h1>
-          
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-fade-in stagger-2">
-            {heroSection?.subtitle || 'Experience luxury shopping with our curated collection of premium products. No account needed — simply browse, order, and enjoy.'}
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in stagger-3">
-            <Link to={(heroSection?.content as any)?.buttonLink || '/products'}>
-              <Button variant="royal" size="xl" className="w-full sm:w-auto">
-                <Crown className="w-5 h-5 mr-2" />
-                {(heroSection?.content as any)?.buttonText || 'Explore Collection'}
-              </Button>
-            </Link>
-            <Link to="/track-order">
-              <Button variant="royalOutline" size="xl" className="w-full sm:w-auto">
-                Track Your Order
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Top Deals (new) — placed after hero so hero remains visually above */}
-      <TopDeals />
-
-      {/* Render any 'deal_grid' sections from CMS (compact, below hero) */}
-      {sections && sections.length > 0 && (
-        <>
-          {sections.filter((s: any) => s.section_type === 'deal_grid' && s.is_active).map((s: any) => (
-            <DealGrid key={s.id} section={s} />
-          ))}
-        </>
-      )}
-
-      {/* Features Section */}
-      {featuresSection && (
-        <section className="py-16 bg-card/50">
+        {/* ========== BANNER CAROUSEL ========== */}
+        <section className="py-6 sm:py-8 md:py-12">
           <div className="container mx-auto px-4">
-            {featuresSection.title && (
-              <h2 className="font-display text-3xl font-bold text-center mb-10 he">
-                <span className="gradient-gold-text">{featuresSection.title}</span>
-              </h2>
-            )}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {((featuresSection.content as any)?.features || [
-                { icon: 'truck', title: 'Fast Delivery', description: 'Quick and reliable shipping to your doorstep' },
-                { icon: 'shield', title: 'Secure Checkout', description: 'Shop with confidence — your data is protected' },
-                { icon: 'gift', title: 'Guest Checkout', description: 'No account required — order instantly' },
-              ]).map((feature: any, index: number) => {
-                const IconComponent = iconMap[feature.icon] || Gift;
+            <div className="rounded-3xl md:rounded-[2rem] overflow-hidden shadow-2xl shadow-foreground/10">
+              <BannerCarousel />
+            </div>
+          </div>
+        </section>
+
+        {/* ========== TOP DEALS ========== */}
+        <TopDeals />
+
+        {/* ========== DEAL GRID SECTIONS ========== */}
+        {sections && sections.filter((s: any) => s.section_type === 'deal_grid' && s.is_active).map((s: any) => (
+          <DealGrid key={s.id} section={s} />
+        ))}
+
+        {/* ========== FEATURES SECTION ========== */}
+        <section className="py-10 sm:py-16 md:py-24 bg-gradient-to-b from-background to-card">
+          <div className="container mx-auto px-4">
+            <SectionHeader 
+              title={featuresSection?.title || "Why Choose Us?"}
+              subtitle="We're committed to providing you the best shopping experience"
+              icon={Award}
+              gradient="bg-gradient-to-br from-primary to-accent"
+            />
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 md:gap-6">
+              {((featuresSection?.content as any)?.features || defaultFeatures).map((feature: any, index: number) => {
+                const IconComponent = typeof feature.icon === 'string' ? (iconMap[feature.icon] || Gift) : feature.icon;
                 return (
-                  <div 
+                  <FeatureCard
                     key={index}
-                    className={`flex flex-col items-center text-center p-6 rounded-xl bg-background border border-border/50 animate-fade-in stagger-${index + 1}`}
-                  >
-                    <div className="w-16 h-16 rounded-full gradient-gold flex items-center justify-center mb-4">
-                      <IconComponent className="w-8 h-8 text-primary-foreground" />
-                    </div>
-                    <h3 className="font-display text-xl font-semibold mb-2">{feature.title}</h3>
-                    <p className="text-muted-foreground text-sm">{feature.description}</p>
-                  </div>
+                    icon={IconComponent}
+                    title={feature.title}
+                    description={feature.description}
+                    color={feature.color || 'bg-gradient-to-br from-primary to-accent'}
+                    index={index}
+                  />
                 );
               })}
             </div>
           </div>
         </section>
-      )}
 
-      {/* Featured Products */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12 he">
-            <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-              <span className="gradient-gold-text">{featuredProductsSection?.title || 'Featured'}</span> Products
-            </h2>
-            <p className="text-muted-foreground">
-              {featuredProductsSection?.subtitle || 'Handpicked treasures from our collection'}
-            </p>
-          </div>
+        {/* ========== FEATURED PRODUCTS ========== */}
+        <section className="py-10 sm:py-16 md:py-24 bg-background">
+          <div className="container mx-auto px-4">
+            <SectionHeader 
+              title={featuredProductsSection?.title || "Featured Products"}
+              subtitle={featuredProductsSection?.subtitle || "Handpicked just for you from our premium collection"}
+              action="View All Products"
+              actionLink="/products"
+              icon={Flame}
+              gradient="bg-gradient-to-br from-primary to-accent"
+            />
 
-          {productsLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="space-y-3">
-                  <Skeleton className="aspect-square rounded-lg" />
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
+            {productsLoading ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="space-y-4 animate-pulse">
+                    <Skeleton className="aspect-square rounded-2xl bg-muted" />
+                    <Skeleton className="h-4 w-3/4 rounded-lg bg-muted" />
+                    <Skeleton className="h-4 w-1/2 rounded-lg bg-muted" />
+                  </div>
+                ))}
+              </div>
+            ) : featuredProducts && featuredProducts.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                {featuredProducts.map((product, index) => (
+                  <div 
+                    key={product.id} 
+                    className="animate-fade-in-up"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <ProductCard
+                      id={product.id}
+                      name={product.name}
+                      price={Number(product.price)}
+                      discount_percentage={product.discount_percentage || 0}
+                      image_url={product.image_url}
+                      cash_on_delivery={(product as any).cash_on_delivery}
+                      images={product.images}
+                      stock_status={product.stock_status}
+                      stock_quantity={product.stock_quantity}
+                      index={index}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 bg-gradient-to-br from-background to-card rounded-3xl border border-border">
+                <div className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                  <Crown className="w-12 h-12 text-primary-foreground" />
                 </div>
-              ))}
-            </div>
-          ) : featuredProducts && featuredProducts.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {featuredProducts.map((product, index) => (
-                  <ProductCard
-                    key={product.id}
-                    id={product.id}
-                    name={product.name}
-                    price={Number(product.price)}
-                    discount_percentage={product.discount_percentage || 0}
-                    image_url={product.image_url}
-                    cash_on_delivery={(product as any).cash_on_delivery}
-                    images={product.images}
-                    stock_status={product.stock_status}
-                    stock_quantity={product.stock_quantity}
-                    index={index}
-                  />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16 bg-card rounded-xl border border-border/50">
-              <Crown className="w-16 h-16 text-primary/30 mx-auto mb-4" />
-              <h3 className="font-display text-xl font-semibold text-muted-foreground mb-2">
-                No products yet
-              </h3>
-              <p className="text-muted-foreground text-sm">
-                Check back soon for our royal collection!
-              </p>
-            </div>
-          )}
-
-          <div className="text-center mt-12">
-            <Link to="/products">
-              <Button variant="royalOutline" size="lg">
-                View All Products
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      {ctaSection && (
-        <section className="py-20 bg-card/50">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-              <span className="gradient-gold-text">{ctaSection.title}</span>
-            </h2>
-            {ctaSection.subtitle && (
-              <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-                {ctaSection.subtitle}
-              </p>
+                <h3 className="text-2xl font-bold text-foreground mb-3">
+                  Coming Soon!
+                </h3>
+                <p className="text-muted-foreground max-w-sm mx-auto">
+                  We're preparing an amazing collection of premium products for you.
+                </p>
+              </div>
             )}
-            <Link to={(ctaSection.content as any)?.buttonLink || '/products'}>
-              <Button variant="royal" size="lg">
-                {(ctaSection.content as any)?.buttonText || 'Shop Now'}
-              </Button>
-            </Link>
+
+            {/* Mobile View All Button */}
+            <div className="text-center mt-6 sm:mt-10 md:hidden">
+              <Link to="/products">
+                <Button 
+                  size="lg" 
+                  className="w-full max-w-sm h-12 sm:h-14 rounded-2xl bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-bold shadow-lg shadow-primary/25"
+                >
+                  View All Products
+                  <ChevronRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </section>
-      )}
-    </Layout>
+
+        {/* ========== CTA SECTION ========== */}
+        {ctaSection && (
+          <section className="py-12 md:py-20">
+            <div className="container mx-auto px-4">
+              <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl md:rounded-[2rem] bg-gradient-to-br from-primary via-accent to-warning p-4 sm:p-8 md:p-16 lg:p-20">
+                {/* Background Elements */}
+                <div className="absolute inset-0 overflow-hidden">
+                  <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/10 rounded-full blur-2xl" />
+                  <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-white/10 rounded-full blur-2xl" />
+                  <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:24px_24px]" />
+                </div>
+                
+                <div className="relative z-10 text-center max-w-3xl mx-auto">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm mb-6">
+                    <Zap className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-semibold text-white">Limited Time Offer</span>
+                  </div>
+                  
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white mb-4 sm:mb-6 leading-tight">
+                    {ctaSection.title}
+                  </h2>
+                  
+                  {ctaSection.subtitle && (
+                    <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-sm sm:max-w-xl mx-auto mb-6 sm:mb-10">
+                      {ctaSection.subtitle}
+                    </p>
+                  )}
+                  
+                  <Link to={(ctaSection.content as any)?.buttonLink || '/products'}>
+                    <Button 
+                      size="lg" 
+                      className="h-12 sm:h-14 md:h-16 px-6 sm:px-10 md:px-12 text-base sm:text-lg font-bold bg-white text-primary hover:bg-white/90 rounded-2xl shadow-2xl shadow-black/20 transition-all duration-300 hover:scale-105"
+                    >
+                      {(ctaSection.content as any)?.buttonText || 'Shop Now'}
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ========== NEWSLETTER SECTION ========== */}
+        <section className="py-10 sm:py-16 md:py-24 bg-gradient-to-b from-card to-background">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-gradient-to-br from-primary via-accent to-warning rounded-2xl sm:rounded-3xl md:rounded-[2rem] p-4 sm:p-8 md:p-14 text-center relative overflow-hidden">
+                {/* Background Pattern */}
+                <div className="absolute inset-0">
+                  <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
+                  <div className="absolute -bottom-10 -left-10 w-60 h-60 bg-white/10 rounded-full blur-2xl" />
+                </div>
+                
+                <div className="relative z-10">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                    <Mail className="w-10 h-10 text-white" />
+                  </div>
+                  
+                  <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-white mb-3 sm:mb-4">
+                    Get 15% Off Your First Order
+                  </h3>
+                  <p className="text-white/90 text-sm sm:text-base md:text-lg mb-4 sm:mb-8 max-w-xs sm:max-w-lg mx-auto">
+                    Subscribe to our newsletter and be the first to know about new products and exclusive deals!
+                  </p>
+                  
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 max-w-full sm:max-w-lg mx-auto">
+                    <input
+                      type="email"
+                      placeholder="Enter your email address"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="flex-1 h-12 sm:h-14 px-4 sm:px-6 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 transition-all"
+                    />
+                    <Button 
+                      className="h-12 sm:h-14 px-6 sm:px-8 bg-white text-primary hover:bg-white/90 rounded-2xl font-bold shadow-lg transition-all duration-300 hover:scale-105"
+                    >
+                      Subscribe
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
+                  
+                  <p className="text-white/60 text-xs mt-4">
+                    By subscribing, you agree to receive marketing emails. Unsubscribe anytime.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ========== BOTTOM TRUST BAR ========== */}
+        <section className="py-6 sm:py-10 border-t border-border">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 md:gap-16">
+              <div className="flex flex-col items-center gap-1 sm:gap-3 text-muted-foreground">
+                <Truck className="w-5 sm:w-6 h-5 sm:h-6 text-primary" />
+                <span className="text-xs sm:text-sm font-medium text-center">Free Shipping</span>
+              </div>
+              <div className="flex flex-col items-center gap-1 sm:gap-3 text-muted-foreground">
+                <Shield className="w-5 sm:w-6 h-5 sm:h-6 text-primary" />
+                <span className="text-xs sm:text-sm font-medium text-center">Secure Payments</span>
+              </div>
+              <div className="flex flex-col items-center gap-1 sm:gap-3 text-muted-foreground">
+                <RefreshCw className="w-5 sm:w-6 h-5 sm:h-6 text-primary" />
+                <span className="text-xs sm:text-sm font-medium text-center">Easy Returns</span>
+              </div>
+              <div className="flex flex-col items-center gap-1 sm:gap-3 text-muted-foreground">
+                <Headphones className="w-5 sm:w-6 h-5 sm:h-6 text-primary" />
+                <span className="text-xs sm:text-sm font-medium text-center">24/7 Support</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </Layout>
     </div>
   );
 }

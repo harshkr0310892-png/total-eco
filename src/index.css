@@ -276,21 +276,6 @@
   body.clean-bg {
     background-image: var(--gradient-surface);
   }
-  
-  /* Enhanced background with subtle pattern */
-  body.warm-bg {
-    background-color: hsl(var(--background));
-    background-image: 
-      radial-gradient(at 20% 30%, hsl(var(--white-accent-light)) 0px, transparent 50%),
-      radial-gradient(at 80% 70%, hsl(var(--white-pastel)) 0px, transparent 50%),
-      var(--gradient-creamy);
-  }
-  
-  /* Soft pastel background */
-  body.pastel-bg {
-    background-color: hsl(var(--background));
-    background-image: var(--gradient-pastel-mix);
-  }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-display tracking-tight;
