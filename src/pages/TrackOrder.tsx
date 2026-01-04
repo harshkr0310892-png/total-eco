@@ -24,6 +24,11 @@ interface Order {
   customer_name: string;
   customer_phone: string;
   customer_address: string;
+  customer_state: string | null;
+  customer_pincode: string | null;
+  customer_landmark1: string | null;
+  customer_landmark2: string | null;
+  customer_landmark3: string | null;
   status: string;
   total: number;
   created_at: string;
@@ -149,7 +154,7 @@ export default function TrackOrder() {
         // Fetch order by order ID
         const { data, error: orderError } = await supabase
           .from('orders')
-          .select('*')
+          .select('id, order_id, customer_name, customer_phone, customer_address, customer_state, customer_pincode, customer_landmark1, customer_landmark2, customer_landmark3, status, total, created_at')
           .eq('order_id', searchId.trim().toUpperCase())
           .maybeSingle();
           
@@ -168,7 +173,7 @@ export default function TrackOrder() {
         // Fetch orders by phone number
         const { data, error: orderError } = await supabase
           .from('orders')
-          .select('*')
+          .select('id, order_id, customer_name, customer_phone, customer_address, customer_state, customer_pincode, customer_landmark1, customer_landmark2, customer_landmark3, status, total, created_at')
           .eq('customer_phone', formattedPhone)
           .order('created_at', { ascending: false });
           
@@ -343,6 +348,12 @@ export default function TrackOrder() {
                 <p><strong>${order.customer_name}</strong></p>
                 <p>${order.customer_phone}</p>
                 <p>${order.customer_address}</p>
+                ${(order.customer_state || order.customer_pincode) ? `<p>${order.customer_state}${order.customer_state && order.customer_pincode ? ', ' : ''} ${order.customer_pincode}</p>` : ''}
+                ${(order.customer_landmark1 || order.customer_landmark2 || order.customer_landmark3) ? `
+                <p><strong>Landmarks:</strong></p>
+                ${order.customer_landmark1 ? `<p>• ${order.customer_landmark1}</p>` : ''}
+                ${order.customer_landmark2 ? `<p>• ${order.customer_landmark2}</p>` : ''}
+                ${order.customer_landmark3 ? `<p>• ${order.customer_landmark3}</p>` : ''}` : ''}
               </div>
               <div class="info-block" style="text-align: right;">
                 <h3>Invoice Details</h3>
@@ -632,43 +643,81 @@ export default function TrackOrder() {
                     <span className="font-display text-xl text-destructive font-semibold">Order Cancelled</span>
                   </div>
                 ) : (
-                  /* Progress Steps */
+                  <>
+                  {/* Enhanced Progress Steps - Always Vertical */}
                   <div className="relative">
-                    <div className="flex justify-between">
-                      {statusSteps.map((step, index) => {
-                        const Icon = step.icon;
-                        const isActive = index <= currentStep;
-                        const isCurrent = index === currentStep;
-                        
-                        return (
-                          <div key={step.key} className="flex flex-col items-center relative z-10">
-                            <div className={cn(
-                              "w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300",
-                              isActive 
-                                ? "bg-primary border-primary text-primary-foreground" 
-                                : "bg-background border-border text-muted-foreground"
-                            )}>
-                              <Icon className="w-6 h-6" />
+                    <div className="flex justify-center relative">
+                      <div className="flex flex-col items-center space-y-6">
+                        {statusSteps.map((step, index) => {
+                          const Icon = step.icon;
+                          const isActive = index <= currentStep;
+                          const isCurrent = index === currentStep;
+                          
+                          // Define specific colors for each step
+                          const stepColors = [
+                            { bg: 'from-blue-400 to-blue-600', border: 'border-blue-500', text: 'text-blue-700', bgInactive: 'from-gray-300 to-gray-400', borderInactive: 'border-gray-400' },
+                            { bg: 'from-indigo-400 to-indigo-600', border: 'border-indigo-500', text: 'text-indigo-700', bgInactive: 'from-gray-300 to-gray-400', borderInactive: 'border-gray-400' },
+                            { bg: 'from-amber-400 to-amber-600', border: 'border-amber-500', text: 'text-amber-700', bgInactive: 'from-gray-300 to-gray-400', borderInactive: 'border-gray-400' },
+                            { bg: 'from-orange-400 to-orange-600', border: 'border-orange-500', text: 'text-orange-700', bgInactive: 'from-gray-300 to-gray-400', borderInactive: 'border-gray-400' },
+                            { bg: 'from-emerald-400 to-emerald-600', border: 'border-emerald-500', text: 'text-emerald-700', bgInactive: 'from-gray-300 to-gray-400', borderInactive: 'border-gray-400' },
+                          ];
+                          
+                          const currentStepColors = stepColors[index] || stepColors[0];
+                          
+                          return (
+                            <div key={step.key} className="flex flex-col items-center relative z-10">
+                              <div className={cn(
+                                "w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center border-4 transition-all duration-500 relative z-10 shadow-lg",
+                                isCurrent 
+                                  ? `bg-gradient-to-br ${currentStepColors.bg} ${currentStepColors.border} text-white scale-110 shadow-amber-200/50` 
+                                  : isActive
+                                    ? `bg-gradient-to-br ${currentStepColors.bg} ${currentStepColors.border} text-white`
+                                    : `bg-gradient-to-br ${currentStepColors.bgInactive} ${currentStepColors.borderInactive} text-gray-500`
+                              )}>
+                                <Icon className={cn(
+                                  "w-5 h-5 md:w-6 md:h-6 transition-all duration-300",
+                                  isCurrent ? "scale-110" : ""
+                                )} />
+                                {isCurrent && (
+                                  <div className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 rounded-full bg-white flex items-center justify-center border-2 border-white">
+                                    <div className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-current animate-pulse"></div>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="mt-2 text-center">
+                                <p className={cn(
+                                  "text-xs md:text-sm font-medium transition-colors duration-300",
+                                  isCurrent 
+                                    ? `${currentStepColors.text} font-bold` 
+                                    : isActive
+                                      ? currentStepColors.text
+                                      : "text-gray-500"
+                                )}>
+                                  {step.label}
+                                </p>
+                                {isCurrent && (
+                                  <div className="mt-1 w-2 h-2 rounded-full bg-current mx-auto animate-pulse"></div>
+                                )}
+                              </div>
+                              
+                              {/* Vertical Progress Line between steps */}
+                              {index < statusSteps.length - 1 && (
+                                <div className="absolute top-full left-1/2 h-4 -translate-x-1/2 w-0.5 bg-gray-200">
+                                  <div 
+                                    className="w-full bg-gradient-to-b from-emerald-400 via-amber-400 to-amber-500 rounded-full"
+                                    style={{ height: `${currentStep > index ? '100%' : '0%'}` }}
+                                  />
+                                </div>
+                              )}
                             </div>
-                            <p className={cn(
-                              "text-xs mt-2 text-center",
-                              isActive ? "text-primary font-medium" : "text-muted-foreground"
-                            )}>
-                              {step.label}
-                            </p>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
                     
-                    {/* Progress Line */}
-                    <div className="absolute top-5 left-0 right-0 h-0.5 bg-muted -z-0">
-                      <div 
-                        className="h-full gradient-gold transition-all duration-500"
-                        style={{ width: `${Math.max(0, (currentStep / (statusSteps.length - 1)) * 100)}%` }}
-                      />
-                    </div>
+                    {/* Horizontal Progress Line for Desktop - REMOVED to keep vertical on all devices */}
                   </div>
+                  </>
                 )}
               </div>
 
@@ -679,6 +728,27 @@ export default function TrackOrder() {
                   <p className="font-medium">{order.customer_name}</p>
                   <p className="text-muted-foreground">{order.customer_phone}</p>
                   <p className="text-muted-foreground mt-2">{order.customer_address}</p>
+                  
+                  {(order.customer_state || order.customer_pincode) && (
+                    <p className="text-muted-foreground mt-1">
+                      {order.customer_state}{order.customer_state && order.customer_pincode && ', '} {order.customer_pincode}
+                    </p>
+                  )}
+                  
+                  {(order.customer_landmark1 || order.customer_landmark2 || order.customer_landmark3) && (
+                    <div className="mt-2">
+                      <p className="text-sm font-medium text-muted-foreground">Landmarks:</p>
+                      {order.customer_landmark1 && (
+                        <p className="text-muted-foreground">• {order.customer_landmark1}</p>
+                      )}
+                      {order.customer_landmark2 && (
+                        <p className="text-muted-foreground">• {order.customer_landmark2}</p>
+                      )}
+                      {order.customer_landmark3 && (
+                        <p className="text-muted-foreground">• {order.customer_landmark3}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div className="bg-card rounded-xl border border-border/50 p-6">
                   <h3 className="font-display text-lg font-semibold mb-4">Order Summary</h3>

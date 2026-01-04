@@ -593,7 +593,7 @@ export default function Index() {
                   </div>
                   
                   <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-white mb-3 sm:mb-4">
-                    Get 15% Off Your First Order
+                    Suscribe us for more products
                   </h3>
                   <p className="text-white/90 text-sm sm:text-base md:text-lg mb-4 sm:mb-8 max-w-xs sm:max-w-lg mx-auto">
                     Subscribe to our newsletter and be the first to know about new products and exclusive deals!
