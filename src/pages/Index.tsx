@@ -577,10 +577,10 @@ export default function Index() {
         )}
 
         {/* ========== NEWSLETTER SECTION ========== */}
-        <section className="py-10 sm:py-16 md:py-24 bg-gradient-to-b from-card to-background">
+        <section className="py-10 sm:py-16 md:py-24 bg-gradient-to-b from-blue-500/10 to-blue-900/20">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <div className="bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl sm:rounded-3xl md:rounded-[2rem] p-4 sm:p-8 md:p-14 text-center relative overflow-hidden">
+              <div className="bg-gradient-to-br from-blue-400 via-blue-600 to-blue-900 rounded-2xl sm:rounded-3xl md:rounded-[2rem] p-4 sm:p-8 md:p-14 text-center relative overflow-hidden">
                 {/* Background Pattern */}
                 <div className="absolute inset-0">
                   <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
@@ -605,7 +605,7 @@ export default function Index() {
                       placeholder="Enter your email address"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="flex-1 h-12 sm:h-14 px-4 sm:px-6 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 transition-all"
+                      className="flex-1 h-12 xs:h-14 sm:h-16 px-3 xs:px-4 sm:px-6 rounded-xl xs:rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 transition-all"
                     />
                     <Button 
                       className="h-12 sm:h-14 px-6 sm:px-8 bg-white text-primary hover:bg-white/90 rounded-2xl font-bold shadow-lg transition-all duration-300 hover:scale-105"
