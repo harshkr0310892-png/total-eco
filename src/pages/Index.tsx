@@ -6,6 +6,7 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/products/ProductCard";
 import { BannerCarousel } from "@/components/home/BannerCarousel";
+import Squares from "@/components/Squares";
 import TopDeals from "@/components/home/TopDeals";
 import DealGrid from "@/components/home/DealGrid";
 import { SpecialOfferPopup } from "@/components/SpecialOfferPopup";
@@ -341,6 +342,9 @@ export default function Index() {
           </div>
 
           <div className="relative z-10 container mx-auto px-4 py-16 md:py-24">
+            <div className="absolute inset-0 -z-10">
+              <Squares direction="diagonal" speed={0.3} borderColor="hsl(var(--border))" hoverFillColor="hsl(var(--primary))" squareSize={25} />
+            </div>
             <div className="max-w-5xl mx-auto text-center">
               {/* Announcement Badge */}
               <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 mb-8 animate-fade-in-up">
@@ -357,7 +361,19 @@ export default function Index() {
               </div>
 
               {/* Main Heading */}
-              <ScrollReveal textClassName="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight mb-4 sm:mb-6 text-foreground">
+              <ScrollReveal 
+                textClassName="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight mb-4 sm:mb-6 bg-gradient-to-r from-blue-900 via-sky-400 to-blue-300 bg-clip-text text-transparent"
+                useTextType={true}
+                textTypeProps={{
+                  typingSpeed: 80,
+                  deletingSpeed: 50,
+                  pauseDuration: 3000,
+                  loop: true,
+                  showCursor: true,
+                  cursorClassName: 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl',
+                  textColors: ['hsl(var(--foreground))']
+                }}
+              >
                 {heroSection?.title || 'Shop Premium Quality'}
               </ScrollReveal>
 

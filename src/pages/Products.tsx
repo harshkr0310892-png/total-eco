@@ -3,6 +3,7 @@ import { ProductCard } from "@/components/products/ProductCard";
 import { FilterMenu } from "@/components/products/FilterMenu";
 import { SearchBar } from "@/components/SearchBar";
 import TopDeals from "@/components/home/TopDeals";
+import TextType from "@/components/ui/TextType";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -235,7 +236,17 @@ export default function Products() {
         {/* Header */}
         <div className="text-center mb-8 he">
           <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">
-            Our <span className="gradient-gold-text">Collection</span>
+            <TextType
+              text="Our Collection"
+              as="span"
+              className="gradient-gold-text"
+              typingSpeed={80}
+              deletingSpeed={50}
+              pauseDuration={3000}
+              loop={true}
+              showCursor={true}
+              cursorClassName="text-4xl md:text-5xl"
+            />
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto mb-6">
             Explore our curated selection of premium products, crafted with excellence and designed for royalty.

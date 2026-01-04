@@ -24,8 +24,7 @@ ON public.newsletter_subscriptions
 FOR ALL
 USING (
   EXISTS (
-    SELECT 1 FROM user_roles ur
-    WHERE ur.user_id = auth.uid()
-    AND ur.role = 'admin'
+    SELECT 1 FROM admin_users au
+    WHERE au.id = auth.uid()
   )
 );

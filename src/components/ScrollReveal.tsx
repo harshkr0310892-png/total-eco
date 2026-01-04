@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useMemo, ReactNode, RefObject } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import TextType from './ui/TextType';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,6 +16,8 @@ interface ScrollRevealProps {
   textClassName?: string;
   rotationEnd?: string;
   wordAnimationEnd?: string;
+  useTextType?: boolean;
+  textTypeProps?: Partial<Omit<React.ComponentProps<typeof TextType>, 'text'>>;
 }
 
 const ScrollReveal: React.FC<ScrollRevealProps> = ({
@@ -27,7 +30,9 @@ const ScrollReveal: React.FC<ScrollRevealProps> = ({
   containerClassName = '',
   textClassName = '',
   rotationEnd = 'bottom bottom',
-  wordAnimationEnd = 'bottom bottom'
+  wordAnimationEnd = 'bottom bottom',
+  useTextType = false,
+  textTypeProps
 }) => {
   const containerRef = useRef<HTMLHeadingElement>(null);
 
@@ -44,6 +49,8 @@ const ScrollReveal: React.FC<ScrollRevealProps> = ({
   }, [children]);
 
   useEffect(() => {
+    if (useTextType) return; // Skip animations if using TextType
+
     const el = containerRef.current;
     if (!el) return;
 
@@ -106,11 +113,20 @@ const ScrollReveal: React.FC<ScrollRevealProps> = ({
     return () => {
       ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
-  }, [scrollContainerRef, enableBlur, baseRotation, baseOpacity, rotationEnd, wordAnimationEnd, blurStrength]);
+  }, [scrollContainerRef, enableBlur, baseRotation, baseOpacity, rotationEnd, wordAnimationEnd, blurStrength, useTextType]);
 
   return (
     <h2 ref={containerRef} className={`my-5 ${containerClassName}`}>
-      <p className={`text-[clamp(1.6rem,4vw,3rem)] leading-[1.5] font-semibold ${textClassName}`}>{splitText}</p>
+      {useTextType ? (
+        <TextType
+          className={`text-[clamp(1.6rem,4vw,3rem)] leading-[1.5] font-semibold ${textClassName}`}
+          text={typeof children === 'string' ? children : ''}
+          as="p"
+          {...textTypeProps}
+        />
+      ) : (
+        <p className={`text-[clamp(1.6rem,4vw,3rem)] leading-[1.5] font-semibold ${textClassName}`}>{splitText}</p>
+      )}
     </h2>
   );
 };
