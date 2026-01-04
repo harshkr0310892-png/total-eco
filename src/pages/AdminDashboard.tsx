@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { 
   Crown, LogOut, Plus, Package, Trash2, 
   Edit2, Loader2, RefreshCw, Upload, X, Ticket, Send, MessageCircle, Bell, Tag,
-  DollarSign, ZoomIn, Phone, Menu, ShoppingBag, Calendar, TrendingUp, BarChart3
+  DollarSign, ZoomIn, Phone, Menu, ShoppingBag, Calendar, TrendingUp, BarChart3, Mail, Download
 } from "lucide-react";
 import { PhotoViewerModal } from "@/components/PhotoViewerModal";
 import { cn } from "@/lib/utils";
@@ -193,6 +193,8 @@ interface IndividualPhoneRestriction {
   updated_at: string;
 }
 
+
+
 const MAX_IMAGES = 8;
 
 export default function AdminDashboard() {
@@ -208,7 +210,7 @@ export default function AdminDashboard() {
       | "cod-restrictions"
       | "individual-phone-restrictions"
       | "sellers"
-      | "seller-profits"
+      | "seller-profits",
   );
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const queryClient = useQueryClient();
@@ -452,6 +454,8 @@ export default function AdminDashboard() {
     },
   });
 
+
+
   // Delete all contact submissions
   const handleDeleteAllContactSubmissions = async () => {
     console.log('Delete all button clicked');
@@ -650,6 +654,8 @@ export default function AdminDashboard() {
         );
     }
   });
+
+
 
   // Fetch messages for selected order
   useEffect(() => {
@@ -1661,6 +1667,7 @@ export default function AdminDashboard() {
                     <Button variant={activeTab === "seller-profits" ? "royal" : "ghost"} className="justify-start" onClick={() => { setActiveTab("seller-profits"); setMobileMenuOpen(false); }}>
                       <DollarSign className="w-4 h-4 mr-2" /> Seller Profits
                     </Button>
+
                   </div>
                 </div>
               </SheetContent>
@@ -1702,6 +1709,7 @@ export default function AdminDashboard() {
                 <DollarSign className="w-4 h-4" />
                 Seller Profits
               </TabsTrigger>
+
             </TabsList>
           </div>
 
@@ -3740,6 +3748,8 @@ export default function AdminDashboard() {
               )}
             </div>
           </TabsContent>
+
+
         </Tabs>
       </main>
       {photoViewerOpen && (

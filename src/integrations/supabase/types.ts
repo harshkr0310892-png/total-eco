@@ -906,6 +906,30 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      },
+      newsletter_subscriptions: {
+        Row: {
+          id: string
+          email: string
+          created_at: string
+          is_active: boolean
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          id?: string
+          email: string
+          created_at?: string
+          is_active?: boolean
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          id?: string
+          email?: string
+          created_at?: string
+          is_active?: boolean
+          unsubscribed_at?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {

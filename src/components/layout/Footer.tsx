@@ -1,12 +1,61 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Facebook, Twitter, Instagram, Mail, Phone, MapPin, Leaf, Recycle, TreePine, Plus, Minus, Youtube, Linkedin, Send } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Footer = () => {
   const [isQuickLinksOpen, setIsQuickLinksOpen] = useState(false);
   const [isCommitmentOpen, setIsCommitmentOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [email, setEmail] = useState("");
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(() => {
+    // Check if user has already subscribed in local storage
+    return localStorage.getItem('newsletter_subscribed') === 'true';
+  });
+  
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+    
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    
+    setIsSubscribing(true);
+    try {
+      const { error } = await supabase
+        .from('newsletter_subscriptions')
+        .insert([{ email }]);
+      
+      if (error) {
+        if (error.code === '23505') { // Unique violation error code
+          toast.error("You're already subscribed to our newsletter!");
+        } else {
+          toast.error("Failed to subscribe. Please try again.");
+        }
+        return;
+      }
+      
+      toast.success("Thank you for subscribing to our newsletter!");
+      setEmail("");
+      setIsSubscribed(true);
+      // Save subscription status to local storage
+      localStorage.setItem('newsletter_subscribed', 'true');
+    } catch (err) {
+      console.error('Error subscribing to newsletter:', err);
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
 
   return (
     <footer 
@@ -96,15 +145,29 @@ export const Footer = () => {
                   isQuickLinksOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 lg:max-h-96 lg:opacity-100'
                 }`}
               >
-                {['Shop Collection', 'View Cart', 'Track Order', 'Contact Us', 'FAQs', 'Privacy Policy'].map((link, index) => (
-                  <Link 
-                    key={index}
-                    to={`/${link.toLowerCase().replace(' ', '-')}`} 
-                    className="inline-block py-1.5 text-white/65 text-sm transition-all duration-150 hover:text-white hover:translate-x-0.5"
-                  >
-                    {link}
-                  </Link>
-                ))}
+                {['Shop Collection', 'View Cart', 'Track Order', 'Contact Us', 'FAQs', 'Privacy Policy'].map((link, index) => {
+                  // Map specific links to their correct routes
+                  let linkTo = `/${link.toLowerCase().replace(' ', '-')}`;
+                  if (link === 'FAQs') {
+                    linkTo = '/faq';
+                  } else if (link === 'Privacy Policy') {
+                    linkTo = '/privacy';
+                  } else if (link === 'Shop Collection') {
+                    linkTo = '/products';
+                  } else if (link === 'View Cart') {
+                    linkTo = '/cart';
+                  }
+                  
+                  return (
+                    <Link 
+                      key={index}
+                      to={linkTo} 
+                      className="inline-block py-1.5 text-white/65 text-sm transition-all duration-150 hover:text-white hover:translate-x-0.5"
+                    >
+                      {link}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
 
@@ -193,28 +256,59 @@ export const Footer = () => {
               <h4 className="text-[0.95rem] text-white/90 font-semibold tracking-wide mb-3">
                 Newsletter
               </h4>
-              <p className="text-white/65 text-sm leading-relaxed mb-3">
-                Subscribe for eco-tips and exclusive offers.
-              </p>
-              <div className="grid grid-cols-1 gap-2.5 mb-2.5">
-                <input 
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="w-full px-3 py-2.5 rounded-xl border border-white/[0.12] bg-black/20 text-white/90 text-sm outline-none placeholder:text-white/45 focus:border-violet-500/60 focus:shadow-[0_0_0_4px_rgba(124,92,255,0.18)] transition-all"
-                />
-                <button className="w-full py-2.5 px-4 rounded-xl border border-violet-500/60 bg-gradient-to-br from-violet-500/95 to-violet-600/70 text-white font-bold text-sm cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 flex items-center justify-center gap-2">
-                  <Send className="w-4 h-4" />
-                  Subscribe
-                </button>
-              </div>
-              <small className="text-white/50 text-xs leading-relaxed">
-                By subscribing, you agree to our{' '}
-                <Link to="/privacy" className="text-white/75 underline underline-offset-2 hover:text-white">
-                  Privacy Policy
-                </Link>
-              </small>
+              {isSubscribed ? (
+                <div className="text-center">
+                  <p className="text-white/65 text-sm leading-relaxed mb-3">
+                    Thanks for subscribing us!
+                  </p>
+                  <div className="w-8 h-8 mx-auto mb-3 rounded-full bg-green-500 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </div>
+                  <p className="text-white/50 text-xs leading-relaxed">
+                    You're all set! Look out for our exclusive deals in your inbox.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <p className="text-white/65 text-sm leading-relaxed mb-3">
+                    Subscribe for eco-tips and exclusive offers.
+                  </p>
+                  <form onSubmit={handleSubscribe} className="grid grid-cols-1 gap-2.5 mb-2.5">
+                    <input 
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email"
+                      className="w-full px-3 py-2.5 rounded-xl border border-white/[0.12] bg-black/20 text-white/90 text-sm outline-none placeholder:text-white/45 focus:border-violet-500/60 focus:shadow-[0_0_0_4px_rgba(124,92,255,0.18)] transition-all"
+                    />
+                    <button 
+                      type="submit"
+                      disabled={isSubscribing}
+                      className="w-full py-2.5 px-4 rounded-xl border border-violet-500/60 bg-gradient-to-br from-violet-500/95 to-violet-600/70 text-white font-bold text-sm cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 flex items-center justify-center gap-2"
+                    >
+                      {isSubscribing ? (
+                        <>
+                          <Send className="w-4 h-4 animate-spin" />
+                          Subscribing...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4" />
+                          Subscribe
+                        </>
+                      )}
+                    </button>
+                  </form>
+                  <small className="text-white/50 text-xs leading-relaxed">
+                    By subscribing, you agree to our{' '}
+                    <Link to="/privacy" className="text-white/75 underline underline-offset-2 hover:text-white">
+                      Privacy Policy
+                    </Link>
+                  </small>
+                </>
+              )}
             </div>
           </div>
         </div>

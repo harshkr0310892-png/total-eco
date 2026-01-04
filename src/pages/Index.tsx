@@ -30,13 +30,15 @@ import {
   Headphones,
   RefreshCw,
   CreditCard,
-  Mail
+  Mail,
+  Loader2
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const iconMap: Record<string, ElementType> = {
   crown: Crown,
@@ -193,6 +195,53 @@ const StatBadge = ({ icon: Icon, label, value, color }: { icon: ElementType; lab
 
 export default function Index() {
   const [email, setEmail] = useState("");
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(() => {
+    // Check if user has already subscribed in local storage
+    return localStorage.getItem('newsletter_subscribed') === 'true';
+  });
+  
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+    
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    
+    setIsSubscribing(true);
+    try {
+      const { error } = await supabase
+        .from('newsletter_subscriptions')
+        .insert([{ email }]);
+      
+      if (error) {
+        if (error.code === '23505') { // Unique violation error code
+          toast.error("You're already subscribed to our newsletter!");
+        } else {
+          toast.error("Failed to subscribe. Please try again.");
+        }
+        return;
+      }
+      
+      toast.success("Thank you for subscribing to our newsletter!");
+      setEmail("");
+      setIsSubscribed(true);
+      // Save subscription status to local storage
+      localStorage.setItem('newsletter_subscribed', 'true');
+    } catch (err) {
+      console.error('Error subscribing to newsletter:', err);
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
 
   const { data: products, isLoading: productsLoading } = useQuery({
     queryKey: ['featured-products'],
@@ -592,28 +641,59 @@ export default function Index() {
                     <Mail className="w-10 h-10 text-white" />
                   </div>
                   
-                  <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-white mb-3 sm:mb-4">
-                    Suscribe us for more products
-                  </h3>
-                  <p className="text-white/90 text-sm sm:text-base md:text-lg mb-4 sm:mb-8 max-w-xs sm:max-w-lg mx-auto">
-                    Subscribe to our newsletter and be the first to know about new products and exclusive deals!
-                  </p>
-                  
-                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 max-w-full sm:max-w-lg mx-auto">
-                    <input
-                      type="email"
-                      placeholder="Enter your email address"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="flex-1 h-12 xs:h-14 sm:h-16 px-3 xs:px-4 sm:px-6 rounded-xl xs:rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 transition-all"
-                    />
-                    <Button 
-                      className="h-12 sm:h-14 px-6 sm:px-8 bg-white text-primary hover:bg-white/90 rounded-2xl font-bold shadow-lg transition-all duration-300 hover:scale-105"
-                    >
-                      Subscribe
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </div>
+                  {isSubscribed ? (
+                    <div className="text-center">
+                      <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-white mb-3 sm:mb-4">
+                        Thanks for subscribing us!
+                      </h3>
+                      <p className="text-white/90 text-sm sm:text-base md:text-lg mb-4 sm:mb-8 max-w-xs sm:max-w-lg mx-auto">
+                        You're all set! Look out for our exclusive deals and updates in your inbox.
+                      </p>
+                      <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
+                          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-white mb-3 sm:mb-4">
+                        Suscribe us for more products
+                      </h3>
+                      <p className="text-white/90 text-sm sm:text-base md:text-lg mb-4 sm:mb-8 max-w-xs sm:max-w-lg mx-auto">
+                        Subscribe to our newsletter and be the first to know about new products and exclusive deals!
+                      </p>
+                      
+                      <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-2 sm:gap-3 max-w-full sm:max-w-lg mx-auto">
+                        <input
+                          type="email"
+                          placeholder="Enter your email address"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="flex-1 h-12 xs:h-14 sm:h-16 px-3 xs:px-4 sm:px-6 rounded-xl xs:rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 transition-all"
+                        />
+                        <Button 
+                          type="submit"
+                          disabled={isSubscribing}
+                          className="h-12 sm:h-14 px-6 sm:px-8 bg-white text-primary hover:bg-white/90 rounded-2xl font-bold shadow-lg transition-all duration-300 hover:scale-105"
+                        >
+                          {isSubscribing ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Subscribing...
+                            </>
+                          ) : (
+                            <>
+                              Subscribe
+                              <ArrowRight className="w-4 h-4 ml-2" />
+                            </>
+                          )}
+                        </Button>
+                      </form>
+                    </>
+                  )}
                   
                   <p className="text-white/60 text-xs mt-4">
                     By subscribing, you agree to receive marketing emails. Unsubscribe anytime.
