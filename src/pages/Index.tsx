@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
+import React, { ElementType } from "react";
 import ScrollReveal from "@/components/ScrollReveal";
+import Carousel from "@/components/Carousel";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/products/ProductCard";
@@ -36,7 +38,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 
-const iconMap: Record<string, React.ElementType> = {
+const iconMap: Record<string, ElementType> = {
   crown: Crown,
   truck: Truck,
   shield: Shield,
@@ -59,7 +61,7 @@ const FeatureCard = ({
   color,
   index
 }: { 
-  icon: React.ElementType; 
+  icon: ElementType; 
   title: string; 
   description: string;
   color: string;
@@ -140,7 +142,7 @@ const SectionHeader = ({
   subtitle?: string;
   action?: string;
   actionLink?: string;
-  icon?: React.ElementType;
+  icon?: ElementType;
   gradient?: string;
 }) => (
   <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10 md:mb-14">
@@ -177,7 +179,7 @@ const SectionHeader = ({
 );
 
 // Stats Badge
-const StatBadge = ({ icon: Icon, label, value, color }: { icon: React.ElementType; label: string; value: string; color: string }) => (
+const StatBadge = ({ icon: Icon, label, value, color }: { icon: ElementType; label: string; value: string; color: string }) => (
   <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-card/80 backdrop-blur-sm border border-border">
     <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", color)}>
       <Icon className="w-5 h-5 text-white" />
@@ -306,14 +308,9 @@ export default function Index() {
               </div>
 
               {/* Main Heading */}
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight mb-4 sm:mb-6 animate-fade-in-up animation-delay-200">
-                <span className="text-foreground">
-                  {heroSection?.title?.split(' ')[0] || 'Shop'}
-                </span>
-                <span className="block mt-2 bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent">
-                  {heroSection?.title?.split(' ').slice(1).join(' ') || 'Premium Quality'}
-                </span>
-              </h1>
+              <ScrollReveal textClassName="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight mb-4 sm:mb-6 text-foreground">
+                {heroSection?.title || 'Shop Premium Quality'}
+              </ScrollReveal>
 
               {/* Subheading */}
               <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-xs sm:max-w-2xl mx-auto mb-6 sm:mb-10 animate-fade-in-up animation-delay-400 leading-relaxed">
@@ -381,14 +378,14 @@ export default function Index() {
           <section className="py-12 md:py-20">
             <div className="container mx-auto px-4">
               <div className="bg-card rounded-2xl sm:rounded-3xl md:rounded-[2rem] p-4 sm:p-6 md:p-10 border border-border shadow-xl shadow-foreground/10">
-                <SectionHeader 
-                  title="Shop by Category"
-                  subtitle="Browse through our diverse collection of categories"
-                  action="View All Categories"
-                  actionLink="/products"
-                  icon={Sparkles}
-                  gradient="bg-gradient-to-br from-primary to-accent"
-                />
+                <div className="mb-10 md:mb-14">
+                  <ScrollReveal textClassName="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-2 text-center md:text-left">
+                    Shop by Category
+                  </ScrollReveal>
+                  <p className="mt-2 text-muted-foreground text-sm md:text-base max-w-xl text-center md:text-left">
+                    Browse through our diverse collection of categories
+                  </p>
+                </div>
                 
                 <div className="flex items-start gap-3 sm:gap-5 md:gap-8 overflow-x-auto pb-4 scrollbar-hide">
                   {topCategories.map((cat: any, index: number) => (
@@ -420,14 +417,31 @@ export default function Index() {
         {/* ========== FEATURES SECTION ========== */}
         <section className="py-10 sm:py-16 md:py-24 bg-gradient-to-b from-background to-card">
           <div className="container mx-auto px-4">
-            <SectionHeader 
-              title={featuresSection?.title || "Why Choose Us?"}
-              subtitle="We're committed to providing you the best shopping experience"
-              icon={Award}
-              gradient="bg-gradient-to-br from-primary to-accent"
-            />
+            <div className="mb-10 md:mb-14">
+              <ScrollReveal textClassName="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-2 text-center md:text-left">
+                {featuresSection?.title || "Why Choose Us?"}
+              </ScrollReveal>
+              <p className="mt-2 text-muted-foreground text-sm md:text-base max-w-xl text-center md:text-left">
+                We're committed to providing you the best shopping experience
+              </p>
+            </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 md:gap-6">
+            {/* Mobile Carousel for features */}
+            <div className="md:hidden mb-10">
+              <Carousel 
+                items={((featuresSection?.content as any)?.features || defaultFeatures).map((feature: any, index: number) => ({
+                  ...feature,
+                  id: index + 1,
+                  icon: React.createElement(feature.icon || Award, { className: "h-[16px] w-[16px] text-primary-foreground" })
+                }))}
+                baseWidth={300}
+                loop={true}
+                autoplay={true}
+                autoplayDelay={4000}
+              />
+            </div>
+            
+            <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 md:gap-6">
               {((featuresSection?.content as any)?.features || defaultFeatures).map((feature: any, index: number) => {
                 const IconComponent = typeof feature.icon === 'string' ? (iconMap[feature.icon] || Gift) : feature.icon;
                 return (
@@ -448,14 +462,14 @@ export default function Index() {
         {/* ========== FEATURED PRODUCTS ========== */}
         <section className="py-10 sm:py-16 md:py-24 bg-background">
           <div className="container mx-auto px-4">
-            <SectionHeader 
-              title={featuredProductsSection?.title || "Featured Products"}
-              subtitle={featuredProductsSection?.subtitle || "Handpicked just for you from our premium collection"}
-              action="View All Products"
-              actionLink="/products"
-              icon={Flame}
-              gradient="bg-gradient-to-br from-primary to-accent"
-            />
+            <div className="mb-10 md:mb-14">
+              <ScrollReveal textClassName="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-2 text-center md:text-left">
+                {featuredProductsSection?.title || "Featured Products"}
+              </ScrollReveal>
+              <p className="mt-2 text-muted-foreground text-sm md:text-base max-w-xl text-center md:text-left">
+                {featuredProductsSection?.subtitle || "Handpicked just for you from our premium collection"}
+              </p>
+            </div>
 
             {productsLoading ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
@@ -537,9 +551,9 @@ export default function Index() {
                     <span className="text-sm font-semibold text-white">Limited Time Offer</span>
                   </div>
                   
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white mb-4 sm:mb-6 leading-tight">
+                  <ScrollReveal textClassName="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white mb-4 sm:mb-6 leading-tight">
                     {ctaSection.title}
-                  </h2>
+                  </ScrollReveal>
                   
                   {ctaSection.subtitle && (
                     <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-sm sm:max-w-xl mx-auto mb-6 sm:mb-10">
