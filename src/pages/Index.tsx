@@ -101,7 +101,7 @@ const CategoryCard = ({ category, index }: { category: any; index: number }) => 
     className="group flex flex-col items-center flex-shrink-0"
     style={{ animationDelay: `${index * 50}ms` }}
   >
-    <div className="relative w-20 h-20 md:w-28 md:h-28 rounded-3xl overflow-hidden bg-gradient-to-br from-primary/10 to-accent/10 border-2 border-border shadow-lg group-hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2 group-hover:scale-105">
+    <div className="relative w-20 h-20 md:w-28 md:h-28 rounded-3xl overflow-hidden bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-2 border-border shadow-lg group-hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2 group-hover:scale-105">
       {category.image_url ? (
         <img 
           src={category.image_url} 
@@ -150,7 +150,7 @@ const SectionHeader = ({
       {Icon && (
         <div className={cn(
           "hidden md:flex w-14 h-14 rounded-2xl items-center justify-center flex-shrink-0",
-          gradient || "bg-gradient-to-br from-primary to-accent"
+          gradient || "bg-gradient-to-br from-blue-500 to-purple-500"
         )}>
           <Icon className="w-7 h-7 text-white" />
         </div>
@@ -248,25 +248,25 @@ export default function Index() {
       icon: Truck, 
       title: 'Lightning Fast Delivery', 
       description: 'Get your orders delivered within 2-3 business days. Free shipping on orders above ₹499.',
-      color: 'bg-gradient-to-br from-primary to-accent'
+      color: 'bg-gradient-to-br from-blue-500 to-purple-500'
     },
     { 
       icon: Shield, 
       title: '100% Secure Payments', 
       description: 'Your payment information is processed securely. We support all major payment methods.',
-      color: 'bg-gradient-to-br from-primary to-accent'
+      color: 'bg-gradient-to-br from-blue-500 to-purple-500'
     },
     { 
       icon: RefreshCw, 
       title: 'Easy Returns', 
       description: '7-day hassle-free returns. No questions asked. Full refund guaranteed.',
-      color: 'bg-gradient-to-br from-primary to-accent'
+      color: 'bg-gradient-to-br from-blue-500 to-purple-500'
     },
     { 
       icon: Headphones, 
       title: '24/7 Premium Support', 
       description: 'Our dedicated support team is here to help you anytime via chat, email, or phone.',
-      color: 'bg-gradient-to-br from-primary to-accent'
+      color: 'bg-gradient-to-br from-blue-500 to-purple-500'
     },
   ];
 
@@ -280,7 +280,7 @@ export default function Index() {
           {/* Animated Background */}
           <div className="absolute inset-0">
             {/* Main gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-card to-accent/5" />
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-card to-purple-500/5" />
             
             {/* Animated blobs */}
             <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-violet-400 to-purple-500 rounded-full blur-3xl opacity-20 animate-blob" />
@@ -294,7 +294,7 @@ export default function Index() {
           <div className="relative z-10 container mx-auto px-4 py-16 md:py-24">
             <div className="max-w-5xl mx-auto text-center">
               {/* Announcement Badge */}
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 mb-8 animate-fade-in-up">
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 mb-8 animate-fade-in-up">
                 <div className="flex items-center gap-1.5">
                   <span className="relative flex h-2.5 w-2.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-500 opacity-75"></span>
@@ -322,7 +322,7 @@ export default function Index() {
                 <Link to={(heroSection?.content as any)?.buttonLink || '/products'}>
                   <Button 
                     size="lg" 
-                    className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-bold bg-gradient-to-r from-primary via-accent to-warning hover:from-primary/90 hover:via-accent/90 hover:to-warning/90 text-primary-foreground shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/30 transition-all duration-300 rounded-2xl"
+                    className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-primary-foreground shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/30 transition-all duration-300 rounded-2xl"
                   >
                     <ShoppingBag className="w-5 h-5 mr-2" />
                     {(heroSection?.content as any)?.buttonText || 'Start Shopping'}
@@ -450,7 +450,7 @@ export default function Index() {
                     icon={IconComponent}
                     title={feature.title}
                     description={feature.description}
-                    color={feature.color || 'bg-gradient-to-br from-primary to-accent'}
+                    color={feature.color || 'bg-gradient-to-br from-blue-500 to-purple-500'}
                     index={index}
                   />
                 );
@@ -506,7 +506,7 @@ export default function Index() {
               </div>
             ) : (
               <div className="text-center py-20 bg-gradient-to-br from-background to-card rounded-3xl border border-border">
-                <div className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                <div className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
                   <Crown className="w-12 h-12 text-primary-foreground" />
                 </div>
                 <h3 className="text-2xl font-bold text-foreground mb-3">
@@ -523,7 +523,7 @@ export default function Index() {
               <Link to="/products">
                 <Button 
                   size="lg" 
-                  className="w-full max-w-sm h-12 sm:h-14 rounded-2xl bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-bold shadow-lg shadow-primary/25"
+                  className="w-full max-w-sm h-12 sm:h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-primary-foreground font-bold shadow-lg shadow-primary/25"
                 >
                   View All Products
                   <ChevronRight className="w-5 h-5 ml-2" />
@@ -537,7 +537,7 @@ export default function Index() {
         {ctaSection && (
           <section className="py-12 md:py-20">
             <div className="container mx-auto px-4">
-              <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl md:rounded-[2rem] bg-gradient-to-br from-primary via-accent to-warning p-4 sm:p-8 md:p-16 lg:p-20">
+              <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl md:rounded-[2rem] bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 p-4 sm:p-8 md:p-16 lg:p-20">
                 {/* Background Elements */}
                 <div className="absolute inset-0 overflow-hidden">
                   <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/10 rounded-full blur-2xl" />
@@ -580,7 +580,7 @@ export default function Index() {
         <section className="py-10 sm:py-16 md:py-24 bg-gradient-to-b from-card to-background">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <div className="bg-gradient-to-br from-primary via-accent to-warning rounded-2xl sm:rounded-3xl md:rounded-[2rem] p-4 sm:p-8 md:p-14 text-center relative overflow-hidden">
+              <div className="bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl sm:rounded-3xl md:rounded-[2rem] p-4 sm:p-8 md:p-14 text-center relative overflow-hidden">
                 {/* Background Pattern */}
                 <div className="absolute inset-0">
                   <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />

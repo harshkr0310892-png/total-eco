@@ -20,6 +20,7 @@ export interface CarouselProps {
   pauseOnHover?: boolean;
   loop?: boolean;
   round?: boolean;
+  alignment?: 'center' | 'right' | 'left'; // Added alignment prop
 }
 
 const DEFAULT_ITEMS: CarouselItem[] = [
@@ -81,7 +82,7 @@ function CarouselItem({ item, index, itemWidth, round, trackItemOffset, x, trans
       className={`relative shrink-0 flex flex-col ${
         round
           ? 'items-center justify-center text-center bg-[#060010] border-0'
-          : 'items-start justify-between bg-[#222] border border-[#222] rounded-[12px]'
+          : 'items-start justify-between bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-blue-800/20 border border-blue-500/30 rounded-[12px]'
       } overflow-hidden cursor-grab active:cursor-grabbing`}
       style={{
         width: itemWidth,
@@ -92,7 +93,7 @@ function CarouselItem({ item, index, itemWidth, round, trackItemOffset, x, trans
       transition={transition}
     >
       <div className={`${round ? 'p-0 m-0' : 'mb-4 p-5'}`}>
-        <span className="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-primary">
+        <span className="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-500">
           {item.icon}
         </span>
       </div>
@@ -111,7 +112,8 @@ export default function Carousel({
   autoplayDelay = 3000,
   pauseOnHover = false,
   loop = false,
-  round = false
+  round = false,
+  alignment = 'center' // Default to center
 }: CarouselProps): JSX.Element {
   const containerPadding = 16;
   const itemWidth = baseWidth - containerPadding * 2;
@@ -241,6 +243,10 @@ export default function Carousel({
       ref={containerRef}
       className={`relative overflow-hidden p-4 ${
         round ? 'rounded-full border border-white' : 'rounded-[24px] border border-[#222]'
+      } ${
+        alignment === 'center' ? 'mx-auto' : 
+        alignment === 'right' ? 'ml-auto' : 
+        alignment === 'left' ? '' : 'mx-auto' // default to center if invalid value
       }`}
       style={{
         width: `${baseWidth}px`,

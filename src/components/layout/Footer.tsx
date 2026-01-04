@@ -1,229 +1,253 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Crown, Facebook, Twitter, Instagram, Mail, Phone, MapPin, Leaf, Recycle, TreePine, Plus, Minus } from "lucide-react";
+import { Facebook, Twitter, Instagram, Mail, Phone, MapPin, Leaf, Recycle, TreePine, Plus, Minus, Youtube, Linkedin, Send } from "lucide-react";
 
 export const Footer = () => {
   const [isQuickLinksOpen, setIsQuickLinksOpen] = useState(false);
   const [isCommitmentOpen, setIsCommitmentOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
+  const [email, setEmail] = useState("");
 
   return (
-    <footer className="border-t border-border/50 bg-gradient-to-r from-green-50/20 via-card/10 to-emerald-50/20 dark:from-green-900/10 dark:via-card/5 dark:to-emerald-900/10 backdrop-blur-xl">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Brand Info */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-600 to-emerald-700 dark:from-green-500 dark:to-emerald-600 flex items-center justify-center shadow-lg">
-                <Leaf className="w-7 h-7 text-white" />
+    <footer 
+      className="relative text-white/90 pt-16 pb-6 px-4 border-t border-white/[0.08]"
+      style={{
+        background: `
+          radial-gradient(1200px 500px at 10% 0%, rgba(124,92,255,0.35), transparent 60%),
+          radial-gradient(900px 450px at 90% 10%, rgba(34,197,94,0.25), transparent 55%),
+          linear-gradient(180deg, #0f1833, #0b1020)
+        `
+      }}
+    >
+      <div className="max-w-[1100px] mx-auto">
+        {/* Main Footer Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1.9fr] gap-8">
+          
+          {/* Brand Card */}
+          <div className="p-5 bg-white/[0.06] border border-white/[0.12] rounded-[18px] backdrop-blur-[10px] shadow-[0_18px_55px_rgba(0,0,0,0.35)]">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg">
+                <Leaf className="w-6 h-6 text-white" />
               </div>
-              <span className="font-display text-2xl font-bold bg-gradient-to-r from-green-700 to-emerald-800 dark:from-green-400 dark:to-emerald-300 bg-clip-text text-transparent">
+              <span 
+                className="font-bold text-lg tracking-wide"
+                style={{
+                  background: 'linear-gradient(90deg, #fff, rgba(255,255,255,0.8))',
+                  WebkitBackgroundClip: 'text',
+                  backgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}
+              >
                 Kiran Store
               </span>
             </div>
-            <p className="text-muted-foreground text-sm leading-relaxed">
+            
+            <p className="text-white/65 text-sm leading-relaxed mb-4">
               Your premier destination for sustainable, eco-friendly products that care for both you and the planet.
             </p>
-            <div className="flex items-center gap-2 text-xs text-emerald-700 dark:text-emerald-300">
+            
+            <div className="flex items-center gap-2 text-xs text-emerald-400 mb-5">
               <TreePine className="w-4 h-4" />
               <span>Committed to sustainability & carbon neutrality</span>
             </div>
-            <div className="flex gap-3">
-              <a href="#" className="w-11 h-11 rounded-full border border-border/50 dark:border-border/30 flex items-center justify-center hover:bg-gradient-to-br hover:from-green-600 hover:to-emerald-700 dark:hover:from-green-500 dark:hover:to-emerald-600 hover:text-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-11 h-11 rounded-full border border-border/50 dark:border-border/30 flex items-center justify-center hover:bg-gradient-to-br hover:from-green-600 hover:to-emerald-700 dark:hover:from-green-500 dark:hover:to-emerald-600 hover:text-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-11 h-11 rounded-full border border-border/50 dark:border-border/30 flex items-center justify-center hover:bg-gradient-to-br hover:from-green-600 hover:to-emerald-700 dark:hover:from-green-500 dark:hover:to-emerald-600 hover:text-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                <Instagram className="w-5 h-5" />
-              </a>
+            
+            {/* Social Icons */}
+            <div className="flex gap-2.5 flex-wrap">
+              {[
+                { icon: Facebook, href: "#" },
+                { icon: Twitter, href: "#" },
+                { icon: Instagram, href: "#" },
+                { icon: Youtube, href: "#" },
+                { icon: Linkedin, href: "#" },
+              ].map((social, index) => (
+                <a 
+                  key={index}
+                  href={social.href} 
+                  className="w-[42px] h-[42px] rounded-xl grid place-items-center border border-white/[0.12] bg-white/[0.04] transition-all duration-200 hover:-translate-y-0.5 hover:bg-violet-500/20 hover:border-violet-500/40"
+                >
+                  <social.icon className="w-5 h-5 text-white/80" />
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <h4 className="font-display text-lg font-semibold text-foreground relative pb-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-0.5 after:bg-gradient-to-r after:from-green-600 after:to-emerald-700 dark:after:from-green-500 dark:after:to-emerald-600 rounded-full">
-                Quick Links
-              </h4>
-              <button 
-                className="md:hidden w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center transition-transform duration-300 hover:scale-110"
-                onClick={() => setIsQuickLinksOpen(!isQuickLinksOpen)}
+          {/* Footer Columns */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 content-start">
+            
+            {/* Quick Links */}
+            <div className="p-2">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-[0.95rem] text-white/90 font-semibold tracking-wide">
+                  Quick Links
+                </h4>
+                <button 
+                  className="lg:hidden w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center transition-transform duration-300 hover:scale-110 border border-violet-500/30"
+                  onClick={() => setIsQuickLinksOpen(!isQuickLinksOpen)}
+                >
+                  {isQuickLinksOpen ? (
+                    <Minus className="w-4 h-4 text-violet-300" />
+                  ) : (
+                    <Plus className="w-4 h-4 text-violet-300" />
+                  )}
+                </button>
+              </div>
+              <div 
+                className={`flex flex-col overflow-hidden transition-all duration-500 ease-in-out ${
+                  isQuickLinksOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 lg:max-h-96 lg:opacity-100'
+                }`}
               >
-                {isQuickLinksOpen ? (
-                  <Minus className="w-4 h-4 text-emerald-700 dark:text-emerald-300 transition-transform duration-300" />
-                ) : (
-                  <Plus className="w-4 h-4 text-emerald-700 dark:text-emerald-300 transition-transform duration-300" />
-                )}
-              </button>
+                {['Shop Collection', 'View Cart', 'Track Order', 'Contact Us', 'FAQs', 'Privacy Policy'].map((link, index) => (
+                  <Link 
+                    key={index}
+                    to={`/${link.toLowerCase().replace(' ', '-')}`} 
+                    className="inline-block py-1.5 text-white/65 text-sm transition-all duration-150 hover:text-white hover:translate-x-0.5"
+                  >
+                    {link}
+                  </Link>
+                ))}
+              </div>
             </div>
-            <div 
-              className={`flex flex-col gap-3 overflow-hidden transition-all duration-500 ease-in-out ${
-                isQuickLinksOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 md:max-h-96 md:opacity-100'
-              }`}
-            >
-              <Link to="/products" className="text-muted-foreground hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors text-sm hover:translate-x-1 transition-transform duration-300">
-                <span className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-500"></span>
-                  Shop Collection
-                </span>
-              </Link>
-              <Link to="/cart" className="text-muted-foreground hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors text-sm hover:translate-x-1 transition-transform duration-300">
-                <span className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-500"></span>
-                  View Cart
-                </span>
-              </Link>
-              <Link to="/track-order" className="text-muted-foreground hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors text-sm hover:translate-x-1 transition-transform duration-300">
-                <span className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-500"></span>
-                  Track Your Order
-                </span>
-              </Link>
-              <Link to="/contact-us" className="text-muted-foreground hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors text-sm hover:translate-x-1 transition-transform duration-300">
-                <span className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-500"></span>
+
+            {/* Our Commitment */}
+            <div className="p-2">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-[0.95rem] text-white/90 font-semibold tracking-wide">
+                  Commitment
+                </h4>
+                <button 
+                  className="lg:hidden w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center transition-transform duration-300 hover:scale-110 border border-violet-500/30"
+                  onClick={() => setIsCommitmentOpen(!isCommitmentOpen)}
+                >
+                  {isCommitmentOpen ? (
+                    <Minus className="w-4 h-4 text-violet-300" />
+                  ) : (
+                    <Plus className="w-4 h-4 text-violet-300" />
+                  )}
+                </button>
+              </div>
+              <div 
+                className={`flex flex-col gap-3 overflow-hidden transition-all duration-500 ease-in-out ${
+                  isCommitmentOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 lg:max-h-96 lg:opacity-100'
+                }`}
+              >
+                {[
+                  { icon: Recycle, title: 'Zero Waste', desc: '100% recyclable packaging' },
+                  { icon: TreePine, title: 'Carbon Neutral', desc: 'Offset all emissions' },
+                  { icon: Leaf, title: 'Eco Materials', desc: 'Sustainably sourced' },
+                ].map((item, index) => (
+                  <div key={index} className="flex items-start gap-3 group">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center flex-shrink-0 group-hover:shadow-lg group-hover:shadow-emerald-500/25 transition-all">
+                      <item.icon className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-white/90">{item.title}</p>
+                      <p className="text-white/50 text-xs">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Contact Info */}
+            <div className="p-2">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-[0.95rem] text-white/90 font-semibold tracking-wide">
                   Contact Us
-                </span>
-              </Link>
-              <Link to="/faq" className="text-muted-foreground hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors text-sm hover:translate-x-1 transition-transform duration-300">
-                <span className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-500"></span>
-                  FAQs
-                </span>
-              </Link>
-              <Link to="/privacy" className="text-muted-foreground hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors text-sm hover:translate-x-1 transition-transform duration-300">
-                <span className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-500"></span>
+                </h4>
+                <button 
+                  className="lg:hidden w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center transition-transform duration-300 hover:scale-110 border border-violet-500/30"
+                  onClick={() => setIsContactOpen(!isContactOpen)}
+                >
+                  {isContactOpen ? (
+                    <Minus className="w-4 h-4 text-violet-300" />
+                  ) : (
+                    <Plus className="w-4 h-4 text-violet-300" />
+                  )}
+                </button>
+              </div>
+              <div 
+                className={`flex flex-col gap-3 overflow-hidden transition-all duration-500 ease-in-out ${
+                  isContactOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 lg:max-h-96 lg:opacity-100'
+                }`}
+              >
+                {[
+                  { icon: Mail, title: 'Email', value: 'support@kiranstore.com' },
+                  { icon: Phone, title: 'Phone', value: '+91 9876543210' },
+                  { icon: MapPin, title: 'Address', value: '123 Green Ave, Mumbai' },
+                ].map((item, index) => (
+                  <div key={index} className="flex items-start gap-3 group">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center flex-shrink-0 group-hover:shadow-lg group-hover:shadow-violet-500/25 transition-all">
+                      <item.icon className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-white/90">{item.title}</p>
+                      <p className="text-white/50 text-xs">{item.value}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Newsletter */}
+            <div className="p-2">
+              <h4 className="text-[0.95rem] text-white/90 font-semibold tracking-wide mb-3">
+                Newsletter
+              </h4>
+              <p className="text-white/65 text-sm leading-relaxed mb-3">
+                Subscribe for eco-tips and exclusive offers.
+              </p>
+              <div className="grid grid-cols-1 gap-2.5 mb-2.5">
+                <input 
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  className="w-full px-3 py-2.5 rounded-xl border border-white/[0.12] bg-black/20 text-white/90 text-sm outline-none placeholder:text-white/45 focus:border-violet-500/60 focus:shadow-[0_0_0_4px_rgba(124,92,255,0.18)] transition-all"
+                />
+                <button className="w-full py-2.5 px-4 rounded-xl border border-violet-500/60 bg-gradient-to-br from-violet-500/95 to-violet-600/70 text-white font-bold text-sm cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 flex items-center justify-center gap-2">
+                  <Send className="w-4 h-4" />
+                  Subscribe
+                </button>
+              </div>
+              <small className="text-white/50 text-xs leading-relaxed">
+                By subscribing, you agree to our{' '}
+                <Link to="/privacy" className="text-white/75 underline underline-offset-2 hover:text-white">
                   Privacy Policy
-                </span>
-              </Link>
-            </div>
-          </div>
-
-          {/* Sustainability Info */}
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <h4 className="font-display text-lg font-semibold text-foreground relative pb-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-0.5 after:bg-gradient-to-r after:from-green-600 after:to-emerald-700 dark:after:from-green-500 dark:after:to-emerald-600 rounded-full">
-                Our Commitment
-              </h4>
-              <button 
-                className="md:hidden w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center transition-transform duration-300 hover:scale-110"
-                onClick={() => setIsCommitmentOpen(!isCommitmentOpen)}
-              >
-                {isCommitmentOpen ? (
-                  <Minus className="w-4 h-4 text-emerald-700 dark:text-emerald-300 transition-transform duration-300" />
-                ) : (
-                  <Plus className="w-4 h-4 text-emerald-700 dark:text-emerald-300 transition-transform duration-300" />
-                )}
-              </button>
-            </div>
-            <div 
-              className={`flex flex-col gap-4 overflow-hidden transition-all duration-500 ease-in-out ${
-                isCommitmentOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 md:max-h-96 md:opacity-100'
-              }`}
-            >
-              <div className="flex items-start gap-4 group">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-600 to-emerald-700 dark:from-green-500 dark:to-emerald-600 flex items-center justify-center flex-shrink-0 group-hover:shadow-lg transition-all">
-                  <Recycle className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">Zero Waste Packaging</p>
-                  <p className="text-muted-foreground text-sm">100% recyclable and biodegradable materials</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4 group">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-600 to-emerald-700 dark:from-green-500 dark:to-emerald-600 flex items-center justify-center flex-shrink-0 group-hover:shadow-lg transition-all">
-                  <TreePine className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">Carbon Neutral</p>
-                  <p className="text-muted-foreground text-sm">We offset all shipping emissions</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4 group">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-600 to-emerald-700 dark:from-green-500 dark:to-emerald-600 flex items-center justify-center flex-shrink-0 group-hover:shadow-lg transition-all">
-                  <Leaf className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">Eco Materials</p>
-                  <p className="text-muted-foreground text-sm">Sustainably sourced and organic materials</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Contact Info */}
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <h4 className="font-display text-lg font-semibold text-foreground relative pb-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-0.5 after:bg-gradient-to-r after:from-green-600 after:to-emerald-700 dark:after:from-green-500 dark:after:to-emerald-600 rounded-full">
-                Contact Us
-              </h4>
-              <button 
-                className="md:hidden w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center transition-transform duration-300 hover:scale-110"
-                onClick={() => setIsContactOpen(!isContactOpen)}
-              >
-                {isContactOpen ? (
-                  <Minus className="w-4 h-4 text-emerald-700 dark:text-emerald-300 transition-transform duration-300" />
-                ) : (
-                  <Plus className="w-4 h-4 text-emerald-700 dark:text-emerald-300 transition-transform duration-300" />
-                )}
-              </button>
-            </div>
-            <div 
-              className={`flex flex-col gap-4 overflow-hidden transition-all duration-500 ease-in-out ${
-                isContactOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 md:max-h-96 md:opacity-100'
-              }`}
-            >
-              <div className="flex items-start gap-4 group">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-600 to-emerald-700 dark:from-green-500 dark:to-emerald-600 flex items-center justify-center flex-shrink-0 group-hover:shadow-lg transition-all">
-                  <Mail className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">Email</p>
-                  <p className="text-muted-foreground text-sm">support@royalecostore.com</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4 group">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-600 to-emerald-700 dark:from-green-500 dark:to-emerald-600 flex items-center justify-center flex-shrink-0 group-hover:shadow-lg transition-all">
-                  <Phone className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">Phone</p>
-                  <p className="text-muted-foreground text-sm">+91 9876543210</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4 group">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-600 to-emerald-700 dark:from-green-500 dark:to-emerald-600 flex items-center justify-center flex-shrink-0 group-hover:shadow-lg transition-all">
-                  <MapPin className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">Address</p>
-                  <p className="text-muted-foreground text-sm">123 Green Avenue, Mumbai, India</p>
-                </div>
-              </div>
+                </Link>
+              </small>
             </div>
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-border/30 dark:border-border/20 text-center">
-          <p className="text-muted-foreground text-sm">
-            © 2024 Royal Eco Store. All rights reserved. <span className="text-emerald-700 dark:text-emerald-400">Sustainable shopping for a greener tomorrow.</span>
-          </p>
-          <div className="mt-2 flex items-center justify-center gap-4 text-xs text-emerald-700 dark:text-emerald-400">
-            <span className="flex items-center gap-1">
-              <Leaf className="w-3 h-3" />
+        {/* Footer Bottom */}
+        <div className="max-w-[1100px] mx-auto mt-7 pt-5 border-t border-white/[0.09] flex flex-col sm:flex-row items-center justify-between gap-3 text-white/50 text-sm">
+          <p>© 2024 Kiran Store. All rights reserved.</p>
+          
+          <div className="flex items-center gap-4 flex-wrap justify-center">
+            <span className="flex items-center gap-1.5 text-emerald-400">
+              <Leaf className="w-3.5 h-3.5" />
               Plastic Free
             </span>
-            <span className="flex items-center gap-1">
-              <Recycle className="w-3 h-3" />
-              Recyclable Packaging
+            <span className="flex items-center gap-1.5 text-violet-400">
+              <Recycle className="w-3.5 h-3.5" />
+              Recyclable
             </span>
-            <span className="flex items-center gap-1">
-              <TreePine className="w-3 h-3" />
+            <span className="flex items-center gap-1.5 text-emerald-400">
+              <TreePine className="w-3.5 h-3.5" />
               Carbon Neutral
             </span>
+          </div>
+          
+          <div className="flex gap-4 flex-wrap">
+            {['Terms', 'Privacy', 'Cookies'].map((link, index) => (
+              <Link 
+                key={index}
+                to={`/${link.toLowerCase()}`} 
+                className="text-white/50 hover:text-white/90 transition-colors py-1"
+              >
+                {link}
+              </Link>
+            ))}
           </div>
         </div>
       </div>
