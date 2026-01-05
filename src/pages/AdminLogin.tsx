@@ -8,8 +8,8 @@ import { toast } from "sonner";
 import { Crown, Lock, User, Loader2 } from "lucide-react";
 
 // Fixed admin credentials
-const ADMIN_USERNAME = "harsh";
-const ADMIN_PASSWORD = "harsh.kr1025";
+const ADMIN_USERNAME = "hello";
+const ADMIN_PASSWORD = "1234";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
